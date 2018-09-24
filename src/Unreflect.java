@@ -51,6 +51,7 @@ public abstract class Unreflect {
     boolean isStatic;
     boolean isArray;
     long offset;
+    long scale;
     Unreflect2 chain, last = this, first = null;
     Object base;
 
@@ -63,18 +64,24 @@ public abstract class Unreflect {
         this.klass = klass;
         isArray = klass.isArray();
         
-        try {
-            field = this.klass.getDeclaredField(name); }
-        catch (NoSuchFieldException ex) {}
-        catch (SecurityException ex) {}
-        isStatic = Modifier.isStatic(field.getModifiers());
-        if (isStatic) {
-            base = uu.staticFieldBase(field);
-            offset = uu.staticFieldOffset(field);
+        if (isArray) {
+            offset = uu.arrayBaseOffset(klass);
+            scale = uu.arrayIndexScale(klass);
         }
-        else
-            offset = uu.objectFieldOffset(field);
-
+        else {
+            try {
+                field = this.klass.getDeclaredField(name); }
+            catch (NoSuchFieldException ex) {}
+            catch (SecurityException ex) {}
+            isStatic = Modifier.isStatic(field.getModifiers());
+            if (isStatic) {
+                base = uu.staticFieldBase(field);
+                offset = uu.staticFieldOffset(field);
+            }
+            else
+                offset = uu.objectFieldOffset(field);
+        }
+        
         for (int ii=1; ii < names.length; ii++)
             chain(names[ii]);
     }
@@ -87,18 +94,33 @@ public abstract class Unreflect {
         return this;
     }
     public Unreflect2 chain(String name) {
-        return chain(last.field.getType(),name);
+        return chain(klass(),name);
+    }
+    public Class klass() {
+        if (isArray) return klass.getComponentType();
+        else return last.field.getType();
     }
 
-    public class Link<VV> {
-        Object obj;
+    public class Link<VV> extends Unreflect {
+        int [] rows;
+        long offset() {
+            return 0;
+        }
+        Object resolve(Object o) {
+            return Unreflect2.this.resolve(o,rows);
+        }
+        public Link(int ... rows) {
+            this.rows = rows;
+        }
     }
-    public Link link(int ... indices) {
-        return new Link();
+    public Link link(int ... rows) {
+        return new Link(rows);
     }
-    
     
     Object resolve(Object o) {
+        return resolve(o,new int[0]);
+    }    
+    Object resolve(Object o,int [] indices) {
         if (first != null)
             return first.resolve(o);
         if (isStatic)
