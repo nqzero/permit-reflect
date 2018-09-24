@@ -3,16 +3,15 @@ import java.io.FileDescriptor;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.security.ProtectionDomain;
-import java.util.ArrayList;
-import jdk.internal.loader.ClassLoaders;
 import static org.srlutils.Unsafe.uu;
 
 
 
 
-public abstract class Unreflect {
+public abstract class Unreflect<VV> {
 
     public static Object getObject(Object cl,String name) {
         try {
@@ -48,7 +47,7 @@ public abstract class Unreflect {
         public FieldNotFound(Exception ex) { super(ex); }
     }
 
-    static class Unreflect2<TT> extends Unreflect {
+    static class Unreflect2<TT,VV> extends Unreflect<VV> {
 
     String name;
     Class klass;
@@ -95,7 +94,7 @@ public abstract class Unreflect {
         for (int ii=1; ii < names.length; ii++)
             chain(names[ii]);
     }
-    public Unreflect2 chain(Class klass,String name) {
+    public Unreflect2<TT,VV> chain(Class klass,String name) {
         Unreflect2 ref = new Unreflect2(klass,name);
         ref.rowPosition = last.rowPosition + (last.isArray ? 1:0);
         if (ref.isStatic)
@@ -103,6 +102,9 @@ public abstract class Unreflect {
         last.chain = ref;
         last = ref;
         return this;
+    }
+    public <XX> Unreflect2<TT,XX> target(Class<XX> klass) {
+        return (Unreflect2<TT,XX>) this;
     }
     public Unreflect2 chain(String name) {
         return chain(klass(),name);
@@ -112,7 +114,7 @@ public abstract class Unreflect {
         else return last.field.getType();
     }
 
-    public class Link<VV> extends Unreflect {
+    public class Link extends Unreflect<VV> {
         int [] rows;
         long offset() {
             return Unreflect2.this.last.addy(rows);
@@ -162,11 +164,11 @@ public abstract class Unreflect {
         uu.putInt(resolve(o),offset(),x);
     }
 
-    public Object getObject(Object o) {
-        return uu.getObject(resolve(o),offset());
+    public VV getObject(Object o) {
+        return (VV) uu.getObject(resolve(o),offset());
     }
 
-    public void putObject(Object o,Object x) {
+    public void putObject(Object o,VV x) {
         uu.putObject(resolve(o),offset(),x);
     }
 
@@ -524,8 +526,8 @@ public abstract class Unreflect {
         vals[ii++] = getField(raf,uu::getInt,"fd","fd");
         vals[ii++] = getField(raf,uu::getInt,"fd,fd");
 
-        Unreflect2 ref = new Unreflect2(FileDescriptor.class,"fd");
-        Unreflect2 ref2 = new Unreflect2(RandomAccessFile.class,"fd").chain("fd");
+        Unreflect2<FileDescriptor,?> ref = new Unreflect2(FileDescriptor.class,"fd");
+        Unreflect2<RandomAccessFile,?> ref2 = new Unreflect2(RandomAccessFile.class,"fd").chain("fd");
         Unreflect2 tmp = new Unreflect2(RandomAccessFile.class,"O_TEMPORARY");
         
         
@@ -537,11 +539,12 @@ public abstract class Unreflect {
 
         ClassLoader cl = Unreflect.class.getClassLoader();
         
-        Unreflect2 app = new Unreflect2(cl,"ucp")
+        Unreflect2<ClassLoader,URL> app = new Unreflect2(cl,"ucp")
                 .chain("path")
                 .chain("elementData")
-                .chain("");
-        Object stuff = app.link(0).getObject(cl);
+                .chain("")
+                .target(URL.class);
+        URL stuff = app.link(0).getObject(cl);
         System.out.println("stuff: " + stuff);
         
     }
