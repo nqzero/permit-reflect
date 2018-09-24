@@ -11,7 +11,7 @@ import static org.srlutils.Unsafe.uu;
 
 
 
-public abstract class Unreflect<VV> {
+public abstract class Unreflect<TT,VV> {
 
     public static Object getObject(Object cl,String name) {
         try {
@@ -47,7 +47,7 @@ public abstract class Unreflect<VV> {
         public FieldNotFound(Exception ex) { super(ex); }
     }
 
-    static class Unreflect2<TT,VV> extends Unreflect<VV> {
+    static class Unreflect2<TT,VV> extends Unreflect<TT,VV> {
 
     String name;
     Class klass;
@@ -114,7 +114,7 @@ public abstract class Unreflect<VV> {
         else return last.field.getType();
     }
 
-    public class Link extends Unreflect<VV> {
+    public class Link extends Unreflect<TT,VV> {
         int [] rows;
         long offset() {
             return Unreflect2.this.last.addy(rows);
@@ -154,77 +154,77 @@ public abstract class Unreflect<VV> {
     }
     
     abstract long offset();
-    abstract Object resolve(Object o);
+    abstract Object resolve(TT o);
     
-    public int getInt(Object o) {
+    public int getInt(TT o) {
         return uu.getInt(resolve(o),offset());
     }
 
-    public void putInt(Object o,int x) {
+    public void putInt(TT o,int x) {
         uu.putInt(resolve(o),offset(),x);
     }
 
-    public VV getObject(Object o) {
+    public VV getObject(TT o) {
         return (VV) uu.getObject(resolve(o),offset());
     }
 
-    public void putObject(Object o,VV x) {
+    public void putObject(TT o,VV x) {
         uu.putObject(resolve(o),offset(),x);
     }
 
-    public boolean getBoolean(Object o) {
+    public boolean getBoolean(TT o) {
         return uu.getBoolean(resolve(o),offset());
     }
 
-    public void putBoolean(Object o,boolean x) {
+    public void putBoolean(TT o,boolean x) {
         uu.putBoolean(resolve(o),offset(),x);
     }
 
-    public byte getByte(Object o) {
+    public byte getByte(TT o) {
         return uu.getByte(resolve(o),offset());
     }
 
-    public void putByte(Object o,byte x) {
+    public void putByte(TT o,byte x) {
         uu.putByte(resolve(o),offset(),x);
     }
 
-    public short getShort(Object o) {
+    public short getShort(TT o) {
         return uu.getShort(resolve(o),offset());
     }
 
-    public void putShort(Object o,short x) {
+    public void putShort(TT o,short x) {
         uu.putShort(resolve(o),offset(),x);
     }
 
-    public char getChar(Object o) {
+    public char getChar(TT o) {
         return uu.getChar(resolve(o),offset());
     }
 
-    public void putChar(Object o,char x) {
+    public void putChar(TT o,char x) {
         uu.putChar(resolve(o),offset(),x);
     }
 
-    public long getLong(Object o) {
+    public long getLong(TT o) {
         return uu.getLong(resolve(o),offset());
     }
 
-    public void putLong(Object o,long x) {
+    public void putLong(TT o,long x) {
         uu.putLong(resolve(o),offset(),x);
     }
 
-    public float getFloat(Object o) {
+    public float getFloat(TT o) {
         return uu.getFloat(resolve(o),offset());
     }
 
-    public void putFloat(Object o,float x) {
+    public void putFloat(TT o,float x) {
         uu.putFloat(resolve(o),offset(),x);
     }
 
-    public double getDouble(Object o) {
+    public double getDouble(TT o) {
         return uu.getDouble(resolve(o),offset());
     }
 
-    public void putDouble(Object o,double x) {
+    public void putDouble(TT o,double x) {
         uu.putDouble(resolve(o),offset(),x);
     }
 
@@ -300,7 +300,7 @@ public abstract class Unreflect<VV> {
         return uu.reallocateMemory(address,bytes);
     }
 
-    public void setMemory(Object o,long bytes,byte value) {
+    public void setMemory(TT o,long bytes,byte value) {
         uu.setMemory(resolve(o),offset(),bytes,value);
     }
 
@@ -372,99 +372,99 @@ public abstract class Unreflect<VV> {
         uu.throwException(ee);
     }
 
-    public final boolean compareAndSwapObject(Object o,Object expected,Object x) {
+    public final boolean compareAndSwapObject(TT o,Object expected,Object x) {
         return uu.compareAndSwapObject(resolve(o),offset(),expected,x);
     }
 
-    public final boolean compareAndSwapInt(Object o,int expected,int x) {
+    public final boolean compareAndSwapInt(TT o,int expected,int x) {
         return uu.compareAndSwapInt(resolve(o),offset(),expected,x);
     }
 
-    public final boolean compareAndSwapLong(Object o,long expected,long x) {
+    public final boolean compareAndSwapLong(TT o,long expected,long x) {
         return uu.compareAndSwapLong(resolve(o),offset(),expected,x);
     }
 
-    public Object getObjectVolatile(Object o) {
+    public Object getObjectVolatile(TT o) {
         return uu.getObjectVolatile(resolve(o),offset());
     }
 
-    public void putObjectVolatile(Object o,Object x) {
+    public void putObjectVolatile(TT o,Object x) {
         uu.putObjectVolatile(resolve(o),offset(),x);
     }
 
-    public int getIntVolatile(Object o) {
+    public int getIntVolatile(TT o) {
         return uu.getIntVolatile(resolve(o),offset());
     }
 
-    public void putIntVolatile(Object o,int x) {
+    public void putIntVolatile(TT o,int x) {
         uu.putIntVolatile(resolve(o),offset(),x);
     }
 
-    public boolean getBooleanVolatile(Object o) {
+    public boolean getBooleanVolatile(TT o) {
         return uu.getBooleanVolatile(resolve(o),offset());
     }
 
-    public void putBooleanVolatile(Object o,boolean x) {
+    public void putBooleanVolatile(TT o,boolean x) {
         uu.putBooleanVolatile(resolve(o),offset(),x);
     }
 
-    public byte getByteVolatile(Object o) {
+    public byte getByteVolatile(TT o) {
         return uu.getByteVolatile(resolve(o),offset());
     }
 
-    public void putByteVolatile(Object o,byte x) {
+    public void putByteVolatile(TT o,byte x) {
         uu.putByteVolatile(resolve(o),offset(),x);
     }
 
-    public short getShortVolatile(Object o) {
+    public short getShortVolatile(TT o) {
         return uu.getShortVolatile(resolve(o),offset());
     }
 
-    public void putShortVolatile(Object o,short x) {
+    public void putShortVolatile(TT o,short x) {
         uu.putShortVolatile(resolve(o),offset(),x);
     }
 
-    public char getCharVolatile(Object o) {
+    public char getCharVolatile(TT o) {
         return uu.getCharVolatile(resolve(o),offset());
     }
 
-    public void putCharVolatile(Object o,char x) {
+    public void putCharVolatile(TT o,char x) {
         uu.putCharVolatile(resolve(o),offset(),x);
     }
 
-    public long getLongVolatile(Object o) {
+    public long getLongVolatile(TT o) {
         return uu.getLongVolatile(resolve(o),offset());
     }
 
-    public void putLongVolatile(Object o,long x) {
+    public void putLongVolatile(TT o,long x) {
         uu.putLongVolatile(resolve(o),offset(),x);
     }
 
-    public float getFloatVolatile(Object o) {
+    public float getFloatVolatile(TT o) {
         return uu.getFloatVolatile(resolve(o),offset());
     }
 
-    public void putFloatVolatile(Object o,float x) {
+    public void putFloatVolatile(TT o,float x) {
         uu.putFloatVolatile(resolve(o),offset(),x);
     }
 
-    public double getDoubleVolatile(Object o) {
+    public double getDoubleVolatile(TT o) {
         return uu.getDoubleVolatile(resolve(o),offset());
     }
 
-    public void putDoubleVolatile(Object o,double x) {
+    public void putDoubleVolatile(TT o,double x) {
         uu.putDoubleVolatile(resolve(o),offset(),x);
     }
 
-    public void putOrderedObject(Object o,Object x) {
+    public void putOrderedObject(TT o,Object x) {
         uu.putOrderedObject(resolve(o),offset(),x);
     }
 
-    public void putOrderedInt(Object o,int x) {
+    public void putOrderedInt(TT o,int x) {
         uu.putOrderedInt(resolve(o),offset(),x);
     }
 
-    public void putOrderedLong(Object o,long x) {
+    public void putOrderedLong(TT o,long x) {
         uu.putOrderedLong(resolve(o),offset(),x);
     }
 
@@ -480,24 +480,24 @@ public abstract class Unreflect<VV> {
         return uu.getLoadAverage(loadavg,nelems);
     }
 
-    public final int getAndAddInt(Object o,int delta) {
+    public final int getAndAddInt(TT o,int delta) {
         return uu.getAndAddInt(resolve(o),offset(),delta);
     }
 
-    public final long getAndAddLong(Object o,long delta) {
+    public final long getAndAddLong(TT o,long delta) {
         return uu.getAndAddLong(resolve(o),offset(),delta);
     }
 
-    public final int getAndSetInt(Object o,int newValue) {
+    public final int getAndSetInt(TT o,int newValue) {
         return uu.getAndSetInt(resolve(o),offset(),newValue);
     }
 
-    public final long getAndSetLong(Object o,long newValue) {
+    public final long getAndSetLong(TT o,long newValue) {
         return uu.getAndSetLong(resolve(o),offset(),newValue);
     }
 
-    public final Object getAndSetObject(Object o,Object newValue) {
-        return uu.getAndSetObject(resolve(o),offset(),newValue);
+    public final VV getAndSetObject(TT o,VV newValue) {
+        return (VV) uu.getAndSetObject(resolve(o),offset(),newValue);
     }
 
     public void loadFence() {
