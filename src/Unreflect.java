@@ -407,7 +407,7 @@ public abstract class Unreflect<TT,VV> {
         
         Unreflect2<ClassLoader,URL> app = new Unreflect2(cl,"ucp")
                 .chain("path")
-                .chain("elementData")
+                .chain(java.util.ArrayList.class,"elementData")
                 .chain("")
                 .target(URL.class);
         URL stuff = app.link(0).getObject(cl);
