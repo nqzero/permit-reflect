@@ -1,6 +1,7 @@
 
 import java.io.FileDescriptor;
 import java.io.RandomAccessFile;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.URL;
@@ -11,9 +12,9 @@ import static org.srlutils.Unsafe.uu;
 
 public abstract class Unreflect<TT,VV> {
 
-    static Unreflect2<Field,Boolean> fieldProxy = new Unreflect2(Field.class,"override");
-    static void makeAccessible(Field field) {
-        fieldProxy.putBoolean(field,true);
+    static Unreflect2<AccessibleObject,Boolean> fieldProxy = new Unreflect2(AccessibleObject.class,"override");
+    static void makeAccessible(AccessibleObject accessor) {
+        fieldProxy.putBoolean(accessor,true);
     }
     static void unLog() {
         try {
