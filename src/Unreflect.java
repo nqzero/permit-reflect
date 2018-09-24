@@ -3,8 +3,10 @@ import java.io.FileDescriptor;
 import java.io.RandomAccessFile;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
+import java.util.HashSet;
 import static org.srlutils.Unsafe.uu;
 
 
@@ -22,6 +24,37 @@ public abstract class Unreflect<TT,VV> {
             new Unreflect2(cls,"logger").putObjectVolatile(null,null);
         }
         catch (ClassNotFoundException ex) {}
+    }
+
+
+    static boolean dbg = false;
+    public static void godMode() {
+        try {
+            Method export = Module.class.getDeclaredMethod("implAddOpens",String.class);
+            makeAccessible(export);
+            HashSet<Module> modules = new HashSet();
+            Module base = Unreflect.class.getModule();
+            if (base.getLayer() != null)
+                modules.addAll(base.getLayer().modules());
+            modules.addAll(ModuleLayer.boot().modules());
+            for (ClassLoader cl = Unreflect.class.getClassLoader(); cl != null; cl = cl.getParent()) {
+                modules.add(cl.getUnnamedModule());
+            }
+            for (Module module : modules) {
+                if (dbg) System.out.println("mod: " + module);
+                for (String name : module.getPackages()) {
+                    if (dbg) System.out.println("   " + name);
+                    try {
+                        export.invoke(module,name);
+                    }
+                    catch (Exception ex) {
+                        if (dbg) System.out.println("ex: " + ex);
+                    }
+                }
+            }
+        }
+        catch (NoSuchMethodException ex) {}
+        catch (SecurityException ex) {}
     }
     
     public static Object getObject(Object cl,String name) {
@@ -371,12 +404,31 @@ public abstract class Unreflect<TT,VV> {
     }
 
     
+    static Object logger(boolean expected) {
+        Object obj = null;
+        try {
+            obj = jdk.internal.module.IllegalAccessLogger.illegalAccessLogger();
+        }
+        catch (Exception ex) {}
+        boolean success = obj != null;
+        if (success != expected)
+            throw new RuntimeException("mismatch: " + obj);
+        return obj;
+    }
+    
     public static void main(String[] args) throws Exception {
         int [] vals = new int[10];
         int ii = 0;
         RandomAccessFile raf = new RandomAccessFile("/etc/hosts","r");
         FileDescriptor fd = raf.getFD();
         Field field = FileDescriptor.class.getDeclaredField("fd");
+        Class ka = AccessibleObject.class;
+//        logger(false);
+        Method export = Module.class.getDeclaredMethod("implAddOpens",String.class);
+        makeAccessible(export);
+        Class log = Class.forName("jdk.internal.module.IllegalAccessLogger");
+        export.invoke(log.getModule(),"jdk.internal.module");
+        System.out.println("logger: " + logger(true));
         unLog();
         try {
             field.setAccessible(true);
@@ -412,7 +464,12 @@ public abstract class Unreflect<TT,VV> {
                 .target(URL.class);
         URL stuff = app.link(0).getObject(cl);
         System.out.println("stuff: " + stuff);
-        
+        godMode();
+
+
+        jdk.internal.jshell.tool.JShellToolBuilder obj = new jdk.internal.jshell.tool.JShellToolBuilder();
+        obj.start();
+        System.out.println("tool: " + obj);
     }
 
     
