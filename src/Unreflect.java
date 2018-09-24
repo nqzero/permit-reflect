@@ -4,8 +4,6 @@ import java.io.RandomAccessFile;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.URL;
-import java.nio.ByteBuffer;
-import java.security.ProtectionDomain;
 import static org.srlutils.Unsafe.uu;
 
 
@@ -247,148 +245,12 @@ public abstract class Unreflect<TT,VV> {
         uu.putDouble(resolve(o),offset(),x);
     }
 
-    public byte getByte(long address) {
-        return uu.getByte(address);
-    }
-
-    public void putByte(long address,byte x) {
-        uu.putByte(address,x);
-    }
-
-    public short getShort(long address) {
-        return uu.getShort(address);
-    }
-
-    public void putShort(long address,short x) {
-        uu.putShort(address,x);
-    }
-
-    public char getChar(long address) {
-        return uu.getChar(address);
-    }
-
-    public void putChar(long address,char x) {
-        uu.putChar(address,x);
-    }
-
-    public int getInt(long address) {
-        return uu.getInt(address);
-    }
-
-    public void putInt(long address,int x) {
-        uu.putInt(address,x);
-    }
-
-    public long getLong(long address) {
-        return uu.getLong(address);
-    }
-
-    public void putLong(long address,long x) {
-        uu.putLong(address,x);
-    }
-
-    public float getFloat(long address) {
-        return uu.getFloat(address);
-    }
-
-    public void putFloat(long address,float x) {
-        uu.putFloat(address,x);
-    }
-
-    public double getDouble(long address) {
-        return uu.getDouble(address);
-    }
-
-    public void putDouble(long address,double x) {
-        uu.putDouble(address,x);
-    }
-
-    public long getAddress(long address) {
-        return uu.getAddress(address);
-    }
-
-    public void putAddress(long address,long x) {
-        uu.putAddress(address,x);
-    }
-
-    public long allocateMemory(long bytes) {
-        return uu.allocateMemory(bytes);
-    }
-
-    public long reallocateMemory(long address,long bytes) {
-        return uu.reallocateMemory(address,bytes);
-    }
-
     public void setMemory(TT o,long bytes,byte value) {
         uu.setMemory(resolve(o),offset(),bytes,value);
     }
 
-    public void setMemory(long address,long bytes,byte value) {
-        uu.setMemory(address,bytes,value);
-    }
-
     public void copyMemory(Object srcBase,long srcOffset,Object destBase,long destOffset,long bytes) {
         uu.copyMemory(srcBase,srcOffset,destBase,destOffset,bytes);
-    }
-
-    public void copyMemory(long srcAddress,long destAddress,long bytes) {
-        uu.copyMemory(srcAddress,destAddress,bytes);
-    }
-
-    public void freeMemory(long address) {
-        uu.freeMemory(address);
-    }
-
-    public long objectFieldOffset(Field f) {
-        return uu.objectFieldOffset(f);
-    }
-
-    public long staticFieldOffset(Field f) {
-        return uu.staticFieldOffset(f);
-    }
-
-    public Object staticFieldBase(Field f) {
-        return uu.staticFieldBase(f);
-    }
-
-    public boolean shouldBeInitialized(Class<?> c) {
-        return uu.shouldBeInitialized(c);
-    }
-
-    public void ensureClassInitialized(Class<?> c) {
-        uu.ensureClassInitialized(c);
-    }
-
-    public int arrayBaseOffset(Class<?> arrayClass) {
-        return uu.arrayBaseOffset(arrayClass);
-    }
-
-    public int arrayIndexScale(Class<?> arrayClass) {
-        return uu.arrayIndexScale(arrayClass);
-    }
-
-    public int addressSize() {
-        return uu.addressSize();
-    }
-
-    public int pageSize() {
-        return uu.pageSize();
-    }
-
-    public Class<?> defineClass(String name,byte[] b,int off,int len,ClassLoader loader,ProtectionDomain protectionDomain) {
-        return uu.defineClass(name,b,off,len,loader,protectionDomain);
-    }
-
-    public Class<?> defineAnonymousClass(Class<?> hostClass,byte[] data,Object[] cpPatches) {
-        return uu.defineAnonymousClass(hostClass,data,cpPatches);
-    }
-
-    public Object allocateInstance(Class<?> cls) throws InstantiationException {
-        return uu.allocateInstance(cls);
-    }
-
-    public void throwException(Throwable ee) {
-        uu.throwException(ee);
     }
 
     public final boolean compareAndSwapObject(TT o,Object expected,Object x) {
@@ -487,18 +349,6 @@ public abstract class Unreflect<TT,VV> {
         uu.putOrderedLong(resolve(o),offset(),x);
     }
 
-    public void unpark(Object thread) {
-        uu.unpark(thread);
-    }
-
-    public void park(boolean isAbsolute,long time) {
-        uu.park(isAbsolute,time);
-    }
-
-    public int getLoadAverage(double[] loadavg,int nelems) {
-        return uu.getLoadAverage(loadavg,nelems);
-    }
-
     public final int getAndAddInt(TT o,int delta) {
         return uu.getAndAddInt(resolve(o),offset(),delta);
     }
@@ -517,22 +367,6 @@ public abstract class Unreflect<TT,VV> {
 
     public final VV getAndSetObject(TT o,VV newValue) {
         return (VV) uu.getAndSetObject(resolve(o),offset(),newValue);
-    }
-
-    public void loadFence() {
-        uu.loadFence();
-    }
-
-    public void storeFence() {
-        uu.storeFence();
-    }
-
-    public void fullFence() {
-        uu.fullFence();
-    }
-
-    public void invokeCleaner(ByteBuffer directBuffer) {
-        uu.invokeCleaner(directBuffer);
     }
 
     
