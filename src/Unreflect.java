@@ -13,6 +13,11 @@ import static org.srlutils.Unsafe.uu;
 
 public abstract class Unreflect<TT,VV> {
 
+    static Unreflect2<Field,Boolean> fieldProxy = new Unreflect2(Field.class,"override");
+    static void makeAccessible(Field field) {
+        fieldProxy.putBoolean(field,true);
+    }
+    
     public static Object getObject(Object cl,String name) {
         try {
             Field field = cl.getClass().getDeclaredField(name);
@@ -525,10 +530,14 @@ public abstract class Unreflect<TT,VV> {
 
     
     public static void main(String[] args) throws Exception {
-        RandomAccessFile raf = new RandomAccessFile("/etc/hosts","r");
-        FileDescriptor fd = raf.getFD();
         int [] vals = new int[10];
         int ii = 0;
+        RandomAccessFile raf = new RandomAccessFile("/etc/hosts","r");
+        FileDescriptor fd = raf.getFD();
+        Field field = FileDescriptor.class.getDeclaredField("fd");
+        makeAccessible(field);
+        vals[ii++] = field.getInt(fd);
+        
         vals[ii++] = getField(fd,uu::getInt,"fd");
         vals[ii++] = getField(raf,uu::getInt,"fd","fd");
         vals[ii++] = getField(raf,uu::getInt,"fd,fd");
