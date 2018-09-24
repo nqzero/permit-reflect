@@ -47,6 +47,17 @@ public abstract class Unreflect<TT,VV> {
         public FieldNotFound(Exception ex) { super(ex); }
     }
 
+    static Field getSuperField(Class klass,String name) {
+        for (; klass != Object.class; klass = klass.getSuperclass()) {
+            try {
+                return klass.getDeclaredField(name);
+            }
+            catch (NoSuchFieldException ex) {}
+            catch (SecurityException ex) {}
+        }
+        return null;
+    }
+    
     static class Unreflect2<TT,VV> extends Unreflect<TT,VV> {
 
     String name;
@@ -75,11 +86,7 @@ public abstract class Unreflect<TT,VV> {
         }
         else {
             Exception ex = null;
-            try {
-                field = this.klass.getDeclaredField(name);
-            }
-            catch (NoSuchFieldException tex) { ex=tex; }
-            catch (SecurityException tex) { ex=tex; }
+            field = getSuperField(klass,name);
             if (field==null)
                 throw new FieldNotFound(ex);
             isStatic = Modifier.isStatic(field.getModifiers());
