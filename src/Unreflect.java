@@ -5,6 +5,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.security.ProtectionDomain;
+import java.util.ArrayList;
+import jdk.internal.loader.ClassLoaders;
 import static org.srlutils.Unsafe.uu;
 
 
@@ -54,6 +56,7 @@ public abstract class Unreflect {
     long scale;
     Unreflect2 chain, last = this, first = null;
     Object base;
+    int rowPosition;
 
     Unreflect2(TT sample,String name) {
         this((Class<TT>) sample.getClass(),name);
@@ -70,9 +73,12 @@ public abstract class Unreflect {
         }
         else {
             try {
-                field = this.klass.getDeclaredField(name); }
+                field = this.klass.getDeclaredField(name);
+            }
             catch (NoSuchFieldException ex) {}
             catch (SecurityException ex) {}
+            if (field==null)
+                field = field;
             isStatic = Modifier.isStatic(field.getModifiers());
             if (isStatic) {
                 base = uu.staticFieldBase(field);
@@ -87,6 +93,7 @@ public abstract class Unreflect {
     }
     public Unreflect2 chain(Class klass,String name) {
         Unreflect2 ref = new Unreflect2(klass,name);
+        ref.rowPosition = last.rowPosition + (last.isArray ? 1:0);
         if (ref.isStatic)
             first = ref;
         last.chain = ref;
@@ -104,7 +111,7 @@ public abstract class Unreflect {
     public class Link<VV> extends Unreflect {
         int [] rows;
         long offset() {
-            return 0;
+            return Unreflect2.this.last.addy(rows);
         }
         Object resolve(Object o) {
             return Unreflect2.this.resolve(o,rows);
@@ -120,15 +127,22 @@ public abstract class Unreflect {
     Object resolve(Object o) {
         return resolve(o,new int[0]);
     }    
-    Object resolve(Object o,int [] indices) {
+    Object resolve(Object o,int [] rows) {
         if (first != null)
             return first.resolve(o);
         if (isStatic)
             o = base;
         for (Unreflect2 ref=this; ref.chain != null; ref=ref.chain)
-            o = uu.getObject(o,ref.offset);
+            o = uu.getObject(o,ref.addy(rows));
         return o;
     }
+    
+    long addy(int [] rows) {
+        return isArray
+                ? offset+scale*rows[rowPosition]
+                : offset;
+    }
+    
     long offset() { return last.offset; }
     
     }
@@ -517,8 +531,13 @@ public abstract class Unreflect {
         for (int jj=0; jj < ii; jj++)
             System.out.println("ufd: " + vals[jj]);
 
+        ClassLoader cl = Unreflect.class.getClassLoader();
         
-        
+        Unreflect2 app = new Unreflect2(cl,"ucp")
+                .chain("path")
+                .chain("elementData");
+        Object stuff = app.link(0).getObject(cl);
+        System.out.println("stuff: " + stuff);
         
     }
 
