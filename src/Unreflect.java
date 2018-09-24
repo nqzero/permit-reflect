@@ -535,7 +535,8 @@ public abstract class Unreflect {
         
         Unreflect2 app = new Unreflect2(cl,"ucp")
                 .chain("path")
-                .chain("elementData");
+                .chain("elementData")
+                .chain("");
         Object stuff = app.link(0).getObject(cl);
         System.out.println("stuff: " + stuff);
         
