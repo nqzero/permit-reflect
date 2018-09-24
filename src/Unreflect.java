@@ -44,6 +44,9 @@ public abstract class Unreflect {
         return null;
     }
 
+    public static class FieldNotFound extends RuntimeException {
+        public FieldNotFound(Exception ex) { super(ex); }
+    }
 
     static class Unreflect2<TT> extends Unreflect {
 
@@ -72,13 +75,14 @@ public abstract class Unreflect {
             scale = uu.arrayIndexScale(klass);
         }
         else {
+            Exception ex = null;
             try {
                 field = this.klass.getDeclaredField(name);
             }
-            catch (NoSuchFieldException ex) {}
-            catch (SecurityException ex) {}
+            catch (NoSuchFieldException tex) { ex=tex; }
+            catch (SecurityException tex) { ex=tex; }
             if (field==null)
-                field = field;
+                throw new FieldNotFound(ex);
             isStatic = Modifier.isStatic(field.getModifiers());
             if (isStatic) {
                 base = uu.staticFieldBase(field);
