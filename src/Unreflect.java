@@ -249,11 +249,11 @@ public abstract class Unreflect<TT,VV> {
         uu.setMemory(resolve(o),offset(),bytes,value);
     }
 
-    public void copyMemory(Object srcBase,long srcOffset,Object destBase,long destOffset,long bytes) {
-        uu.copyMemory(srcBase,srcOffset,destBase,destOffset,bytes);
+    public void copyMemory(TT srcBase,long srcOffset,Object destBase,long destOffset,long bytes) {
+        uu.copyMemory(resolve(srcBase),srcOffset,destBase,destOffset,bytes);
     }
 
-    public final boolean compareAndSwapObject(TT o,Object expected,Object x) {
+    public final boolean compareAndSwapObject(TT o,VV expected,VV x) {
         return uu.compareAndSwapObject(resolve(o),offset(),expected,x);
     }
 
@@ -265,11 +265,11 @@ public abstract class Unreflect<TT,VV> {
         return uu.compareAndSwapLong(resolve(o),offset(),expected,x);
     }
 
-    public Object getObjectVolatile(TT o) {
-        return uu.getObjectVolatile(resolve(o),offset());
+    public VV getObjectVolatile(TT o) {
+        return (VV) uu.getObjectVolatile(resolve(o),offset());
     }
 
-    public void putObjectVolatile(TT o,Object x) {
+    public void putObjectVolatile(TT o,VV x) {
         uu.putObjectVolatile(resolve(o),offset(),x);
     }
 
@@ -337,7 +337,7 @@ public abstract class Unreflect<TT,VV> {
         uu.putDoubleVolatile(resolve(o),offset(),x);
     }
 
-    public void putOrderedObject(TT o,Object x) {
+    public void putOrderedObject(TT o,VV x) {
         uu.putOrderedObject(resolve(o),offset(),x);
     }
 
