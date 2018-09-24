@@ -17,6 +17,13 @@ public abstract class Unreflect<TT,VV> {
     static void makeAccessible(Field field) {
         fieldProxy.putBoolean(field,true);
     }
+    static void unLog() {
+        try {
+            Class cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
+            new Unreflect2(cls,"logger").putObjectVolatile(null,null);
+        }
+        catch (ClassNotFoundException ex) {}
+    }
     
     public static Object getObject(Object cl,String name) {
         try {
@@ -535,6 +542,14 @@ public abstract class Unreflect<TT,VV> {
         RandomAccessFile raf = new RandomAccessFile("/etc/hosts","r");
         FileDescriptor fd = raf.getFD();
         Field field = FileDescriptor.class.getDeclaredField("fd");
+        unLog();
+        try {
+            field.setAccessible(true);
+            vals[ii++] = field.getInt(fd);
+        }
+        catch (Throwable ex) {
+            vals[ii++] = -1;
+        }
         makeAccessible(field);
         vals[ii++] = field.getInt(fd);
         
