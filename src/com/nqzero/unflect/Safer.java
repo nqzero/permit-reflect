@@ -20,7 +20,7 @@ public class Safer<TT,VV> extends SaferUnsafe<TT,VV> {
     int rowPosition;
     boolean isKnown = true;
 
-    Safer(Class<TT> klass,String name) {
+    protected Safer(Class<TT> klass,String name) throws FieldNotFound {
         this.name = name;
         this.klass = klass;
         isArray = klass.isArray();
@@ -43,16 +43,16 @@ public class Safer<TT,VV> extends SaferUnsafe<TT,VV> {
                 offset = uu.objectFieldOffset(field);
         }
     }
-    public Safer<TT,VV> chain(Class klass,String name) {
+    public Safer<TT,VV> chain(Class klass,String name) throws FieldNotFound, IncompatibleClasses {
         Class nominal = last.klass();
         if (!nominal.isAssignableFrom(klass) & !klass.isAssignableFrom(nominal))
             throw new IncompatibleClasses(klass,nominal);
         return chain(klass,name,false);
     }
-    public Safer chain(String name) {
+    public Safer chain(String name) throws FieldNotFound {
         return chain(last.klass(),name,true);
     }
-    private Safer<TT,VV> chain(Class klass,String name,boolean known) {
+    private Safer<TT,VV> chain(Class klass,String name,boolean known) throws FieldNotFound {
         Safer ref = new Safer(klass,name);
         ref.isKnown = known;
         ref.rowPosition = last.rowPosition + (last.isArray ? 1:0);

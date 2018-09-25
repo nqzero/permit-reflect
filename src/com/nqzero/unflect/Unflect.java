@@ -48,7 +48,7 @@ public class Unflect {
         catch (Exception ex) {}
         return null;
     }
-    public static <VV> VV getField(Object cl,Meth<VV> meth,String ... names) {
+    public static <VV> VV getField(Object cl,Meth<VV> meth,String ... names) throws FieldNotFound {
         if (names.length==1)
             names = names[0].split(splitChar);
         try {
@@ -85,7 +85,7 @@ public class Unflect {
         }
     }
 
-    public static <TT,VV> Safer<TT,VV> build(Class<TT> klass,String name) {
+    public static <TT,VV> Safer<TT,VV> build(Class<TT> klass,String name) throws FieldNotFound {
         String [] names = name.split(splitChar);
         String firstName = names.length==0 ? name : names[0];
         Safer<TT,VV> ref = new Safer(klass,firstName);
@@ -94,7 +94,7 @@ public class Unflect {
         return ref;
     }
 
-    public static <TT,VV> Safer<TT,VV> build(TT sample,String name) {
+    public static <TT,VV> Safer<TT,VV> build(TT sample,String name) throws FieldNotFound {
         return build((Class<TT>) sample.getClass(),name);
     }
     
