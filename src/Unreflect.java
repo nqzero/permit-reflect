@@ -467,8 +467,11 @@ public abstract class Unreflect<TT,VV> {
         godMode();
 
 
+
         jdk.internal.jshell.tool.JShellToolBuilder obj = new jdk.internal.jshell.tool.JShellToolBuilder();
-        obj.start();
+        jdk.internal.jshell.tool.JShellTool tool = obj.rawTool();
+        tool.start(args);
+
         System.out.println("tool: " + obj);
     }
 
