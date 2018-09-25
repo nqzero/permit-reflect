@@ -466,7 +466,7 @@ public abstract class Unreflect<TT,VV> {
         vals[ii++] = ref3.getInt(raf);
         vals[ii++] = tmp.getInt(null); // 16
         for (int jj=0; jj < ii; jj++)
-            System.out.println("ufd: " + vals[jj]);
+            System.out.format("ufd %2d: %4d\n",jj,vals[jj]);
 
         ClassLoader cl = Unreflect.class.getClassLoader();
         
