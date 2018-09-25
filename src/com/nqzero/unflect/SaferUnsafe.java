@@ -228,9 +228,8 @@ public abstract class SaferUnsafe<TT,VV> {
         try {
             obj = jdk.internal.module.IllegalAccessLogger.illegalAccessLogger();
         }
-        catch (Exception ex) {}
-        boolean success = obj != null;
-        if (success != expected)
+        catch (Throwable ex) {}
+        if (expected & obj==null)
             throw new RuntimeException("mismatch: " + obj);
         return obj;
     }

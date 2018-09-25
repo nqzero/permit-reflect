@@ -96,6 +96,36 @@ public class Unflect {
         }
         catch (Exception e) { return null; }
     }
+    private static String[] processArgs(String[] args) {
+        String[] ret = new String[args.length-1];
+        if (ret.length > 0) 
+            System.arraycopy(args, 1, ret, 0, ret.length);
+        return ret;
+    }
+
+    /**
+     * invoke the main method in a named class in god mode,
+     * ie with all packages in all modules open to all modules
+     * @param args the first element is the name of the class to invoke
+     *        and the remaining elements are passed as arguments
+     * @throws Exception 
+     */
+    public static void main(String[] args) throws Exception {
+        if (args.length == 0) {
+            System.out.println("usage: java Unflect className [args ...]");
+            System.out.println("  invoke the main method in the named class in god mode with the remaining args");
+            System.out.println("  ie, run it with all packages in all modules open to all modules");
+            System.out.println("");
+            System.exit(1);
+        }
+        godMode();
+        String className = args[0];
+        args = processArgs(args);
+        Class mainClass = Unflect.class.getClassLoader().loadClass(className);
+        Method mainMethod = mainClass.getMethod("main", new Class[]{String[].class});
+        mainMethod.invoke(null,new Object[] {args});
+        
+    }
     
     
 }
