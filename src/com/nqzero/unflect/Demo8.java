@@ -44,9 +44,9 @@ public class Demo8 {
         vals[ii++] = getField(raf,meth,"fd","fd");
         vals[ii++] = getField(raf,meth,"fd.fd");
 
-        Safer<FileDescriptor,?> ref = build(FileDescriptor.class,"fd");
-        Safer<RandomAccessFile,?> ref2 = build(RandomAccessFile.class,"fd").chain("fd");
-        Safer<RandomAccessFile,?> ref3 = build(RandomAccessFile.class,"fd.fd");
+        Unflect<FileDescriptor,?> ref = build(FileDescriptor.class,"fd");
+        Unflect<RandomAccessFile,?> ref2 = build(RandomAccessFile.class,"fd").chain("fd");
+        Unflect<RandomAccessFile,?> ref3 = build(RandomAccessFile.class,"fd.fd");
         
         vals[ii++] = ref.getInt(fd);
         vals[ii++] = ref2.getInt(raf);
@@ -56,7 +56,7 @@ public class Demo8 {
 
         ClassLoader cl = SaferUnsafe.class.getClassLoader();
         
-        Safer<ClassLoader,String> app = build(cl,"ucp")
+        Unflect<ClassLoader,String> app = build(cl,"ucp")
                 .chain("path")
                 .chain(java.util.ArrayList.class,"elementData")
                 .chain("")

@@ -5,11 +5,12 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import static com.nqzero.unflect.UnsafeWrapper.uu;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
-public class Unflect {
+public class Unflect<TT,VV> extends SaferUnsafe<TT,VV> {
     public static final String splitChar = "\\.";
 
-    static Safer<AccessibleObject,Boolean> override = build(AccessibleObject.class,"override");
+    static Unflect<AccessibleObject,Boolean> override = build(AccessibleObject.class,"override");
 
     
     public static void setAccessible(AccessibleObject accessor) {
@@ -85,16 +86,16 @@ public class Unflect {
         }
     }
 
-    public static <TT,VV> Safer<TT,VV> build(Class<TT> klass,String name) throws FieldNotFound {
+    public static <TT,VV> Unflect<TT,VV> build(Class<TT> klass,String name) throws FieldNotFound {
         String [] names = name.split(splitChar);
         String firstName = names.length==0 ? name : names[0];
-        Safer<TT,VV> ref = new Safer(klass,firstName);
+        Unflect<TT,VV> ref = new Unflect(klass,firstName);
         for (int ii=1; ii < names.length; ii++)
             ref.chain(names[ii]);
         return ref;
     }
 
-    public static <TT,VV> Safer<TT,VV> build(TT sample,String name) throws FieldNotFound {
+    public static <TT,VV> Unflect<TT,VV> build(TT sample,String name) throws FieldNotFound {
         return build((Class<TT>) sample.getClass(),name);
     }
     
@@ -139,6 +140,111 @@ public class Unflect {
         mainMethod.invoke(null,new Object[] {args});
         
     }
+    
+
+    String name;
+    Class klass;
+    Field field;
+    boolean isStatic;
+    boolean isArray;
+    long offset;
+    long scale;
+    Unflect chain;
+    Unflect last = this;
+    Unflect first = null;
+    Object base;
+    int rowPosition;
+    boolean isKnown = true;
+
+    protected Unflect(Class<TT> klass,String name) throws FieldNotFound {
+        this.name = name;
+        this.klass = klass;
+        isArray = klass.isArray();
+        
+        if (isArray) {
+            offset = uu.arrayBaseOffset(klass);
+            scale = uu.arrayIndexScale(klass);
+        }
+        else {
+            Exception ex = null;
+            field = getSuperField(klass,name);
+            if (field==null)
+                throw new FieldNotFound(name,ex);
+            isStatic = Modifier.isStatic(field.getModifiers());
+            if (isStatic) {
+                base = uu.staticFieldBase(field);
+                offset = uu.staticFieldOffset(field);
+            }
+            else
+                offset = uu.objectFieldOffset(field);
+        }
+    }
+    public Unflect<TT,VV> chain(Class klass,String name) throws FieldNotFound, IncompatibleClasses {
+        Class nominal = last.klass();
+        if (!nominal.isAssignableFrom(klass) & !klass.isAssignableFrom(nominal))
+            throw new IncompatibleClasses(klass,nominal);
+        return chain(klass,name,false);
+    }
+    public Unflect chain(String name) throws FieldNotFound {
+        return chain(last.klass(),name,true);
+    }
+    protected Unflect<TT,VV> chain(Class klass,String name,boolean known) throws FieldNotFound {
+        Unflect ref = new Unflect(klass,name);
+        ref.isKnown = known;
+        ref.rowPosition = last.rowPosition + (last.isArray ? 1:0);
+        if (ref.isStatic)
+            first = ref;
+        last.chain = ref;
+        last = ref;
+        return this;
+    }
+    public <XX> Unflect<TT,XX> target(Class<XX> klass) {
+        return (Unflect<TT,XX>) this;
+    }
+    protected Class klass() {
+        if (isArray) return klass.getComponentType();
+        else return field.getType();
+    }
+
+    public class Linked extends SaferUnsafe<TT,VV> {
+        int [] rows;
+        protected long offset() {
+            return Unflect.this.last.addy(rows);
+        }
+        protected Object resolve(Object o) {
+            return Unflect.this.resolve(o,rows);
+        }
+        public Linked(int ... rows) {
+            this.rows = rows;
+        }
+    }
+    public Linked link(int ... rows) {
+        return new Linked(rows);
+    }
+    
+    protected Object resolve(Object o) {
+        return resolve(o,new int[0]);
+    }    
+    protected Object resolve(Object o,int [] rows) {
+        if (first != null)
+            return first.resolve(o);
+        if (isStatic)
+            o = base;
+        for (Unflect ref=this; ref.chain != null; ref=ref.chain) {
+            assert(ref.isKnown | ref.klass.isInstance(o));
+            o = uu.getObject(o,ref.addy(rows));
+        }
+        return o;
+    }
+    
+    protected long addy(int [] rows) {
+        return isArray
+                ? offset+scale*rows[rowPosition]
+                : offset;
+    }
+    
+    protected long offset() { return last.offset; }
+
     
     
 }
