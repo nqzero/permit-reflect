@@ -64,7 +64,7 @@ public class DemoUnflect {
                 .target(String.class);
         String path = app.link(0).getObject(cl);
         System.out.println("path: " + path);
-        Unflect.godMode();
+        Support11.godMode();
 
 
 

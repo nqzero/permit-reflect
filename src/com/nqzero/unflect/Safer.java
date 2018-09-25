@@ -108,5 +108,13 @@ public class Safer<TT,VV> extends SaferUnsafe<TT,VV> {
     }
     
     long offset() { return last.offset; }
+
     
+    
+    public static void main(String[] args) throws Exception {
+        Object obj = new java.io.RandomAccessFile("/etc/hosts","r");
+        Safer ref = Unflect.build(obj,"fd");
+        System.out.println(ref.getObject(obj));
+        
+    }
     }
