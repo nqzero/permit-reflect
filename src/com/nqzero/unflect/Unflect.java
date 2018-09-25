@@ -88,14 +88,6 @@ public class Unflect {
         return null;
     }
     
-    public static Object getField(Class klass,String name) {
-        try {
-            Field f = klass.getDeclaredField(name);
-            f.setAccessible(true);
-            return f.get(null);
-        }
-        catch (Exception e) { return null; }
-    }
     private static String[] processArgs(String[] args) {
         String[] ret = new String[args.length-1];
         if (ret.length > 0) 
