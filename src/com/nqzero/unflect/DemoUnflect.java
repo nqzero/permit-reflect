@@ -1,17 +1,17 @@
 package com.nqzero.unflect;
 
-import com.nqzero.unflect.SaferUnsafe.Meth;
+import com.nqzero.unflect.Safer.Meth;
 import static com.nqzero.unflect.Unflect.getField;
 import static com.nqzero.unflect.Unflect.unLog;
 import static com.nqzero.unflect.Unflect.build;
-import static com.nqzero.unflect.SaferUnsafe.logger;
+import static com.nqzero.unflect.Safer.logger;
 import java.io.FileDescriptor;
 import java.io.RandomAccessFile;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
-import static com.nqzero.unflect.UnsafeWrapper.uu;
+import static com.nqzero.unflect.Unsafer.uu;
 import static com.nqzero.unflect.Unflect.setAccessible;
 
 public class DemoUnflect {
@@ -65,7 +65,7 @@ public class DemoUnflect {
         for (int jj=0; jj < ii; jj++)
             System.out.format("ufd %2d: %4d\n",jj,vals[jj]);
 
-        ClassLoader cl = SaferUnsafe.class.getClassLoader();
+        ClassLoader cl = Safer.class.getClassLoader();
         
         Unflect<ClassLoader,String> app = build(cl,"ucp")
                 .chain("path")

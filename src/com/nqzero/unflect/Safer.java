@@ -1,12 +1,12 @@
 package com.nqzero.unflect;
 
 
-import static com.nqzero.unflect.UnsafeWrapper.uu;
+import static com.nqzero.unflect.Unsafer.uu;
 
 
 
 
-public abstract class SaferUnsafe<TT,VV> {
+public abstract class Safer<TT,VV> {
 
 
     public interface Meth<VV> {

@@ -2,7 +2,7 @@ package com.nqzero.unflect;
 
 import java.lang.reflect.Field;
 
-public class UnsafeWrapper {
+public class Unsafer {
     private static Object getField(Class klass,String name) {
         try {
             Field f = klass.getDeclaredField(name);

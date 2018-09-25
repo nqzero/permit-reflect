@@ -1,13 +1,13 @@
 package com.nqzero.unflect;
 
-import com.nqzero.unflect.SaferUnsafe.Meth;
+import com.nqzero.unflect.Safer.Meth;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
-import static com.nqzero.unflect.UnsafeWrapper.uu;
+import static com.nqzero.unflect.Unsafer.uu;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-public class Unflect<TT,VV> extends SaferUnsafe<TT,VV> {
+public class Unflect<TT,VV> extends Safer<TT,VV> {
     public static final String splitChar = "\\.";
 
     static Unflect<AccessibleObject,Boolean> override = build(AccessibleObject.class,"override");
@@ -30,8 +30,10 @@ public class Unflect<TT,VV> extends SaferUnsafe<TT,VV> {
 
     public static void godMode() {
         try {
+            // this will fail on java 8 and lower
+            // but load with at least java 9-11
             Class base = Unflect.class;
-            Class klass = base.getClassLoader().loadClass(base.getPackageName() + ".Support11");
+            Class klass = base.getClassLoader().loadClass(base.getPackageName() + ".Support9");
             Method method = klass.getMethod("godMode");
             method.invoke(null);
         }
@@ -151,7 +153,7 @@ public class Unflect<TT,VV> extends SaferUnsafe<TT,VV> {
     long scale;
     Unflect chain;
     Unflect last = this;
-    Unflect first = null;
+    Unflect first;
     Object base;
     int rowPosition;
     boolean isKnown = true;
@@ -206,7 +208,7 @@ public class Unflect<TT,VV> extends SaferUnsafe<TT,VV> {
         else return field.getType();
     }
 
-    public class Linked extends SaferUnsafe<TT,VV> {
+    public class Linked extends Safer<TT,VV> {
         int [] rows;
         protected long offset() {
             return Unflect.this.last.addy(rows);

@@ -5,17 +5,17 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import static com.nqzero.unflect.Unflect.setAccessible;
 
-public class Support11 {
+public class Support9 {
     public static void godMode() {
         try {
             Method export = Module.class.getDeclaredMethod("implAddOpens",String.class);
             setAccessible(export);
             HashSet<Module> modules = new HashSet();
-            Module base = SaferUnsafe.class.getModule();
+            Module base = Safer.class.getModule();
             if (base.getLayer() != null)
                 modules.addAll(base.getLayer().modules());
             modules.addAll(ModuleLayer.boot().modules());
-            for (ClassLoader cl = SaferUnsafe.class.getClassLoader(); cl != null; cl = cl.getParent()) {
+            for (ClassLoader cl = Safer.class.getClassLoader(); cl != null; cl = cl.getParent()) {
                 modules.add(cl.getUnnamedModule());
             }
             for (Module module : modules) {

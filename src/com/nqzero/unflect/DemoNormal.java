@@ -1,6 +1,6 @@
 package com.nqzero.unflect;
 
-import static com.nqzero.unflect.SaferUnsafe.logger;
+import static com.nqzero.unflect.Safer.logger;
 import java.io.FileDescriptor;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Field;
