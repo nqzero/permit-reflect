@@ -2,9 +2,8 @@ package com.nqzero.unflect;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.HashSet;
 import static com.nqzero.unflect.UnsafeWrapper.uu;
+import java.lang.reflect.Method;
 
 public class Unflect {
     public static final String splitChar = "\\.";
@@ -22,6 +21,18 @@ public class Unflect {
 
 
     static boolean dbg = false;
+
+    public static void godMode() {
+        try {
+            Class base = Unflect.class;
+            Class klass = base.getClassLoader().loadClass(base.getPackageName() + ".Support11");
+            Method method = klass.getMethod("godMode");
+            method.invoke(null);
+        }
+        catch (Throwable ex) {}
+            
+    }
+
     
     public static Object getObject(Object cl,String name) {
         try {

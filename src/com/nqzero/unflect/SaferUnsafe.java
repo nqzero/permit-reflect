@@ -1,8 +1,6 @@
 package com.nqzero.unflect;
 
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import static com.nqzero.unflect.UnsafeWrapper.uu;
 
 
