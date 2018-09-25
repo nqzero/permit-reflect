@@ -13,6 +13,7 @@ import static org.srlutils.Unsafe.uu;
 
 
 public abstract class Unreflect<TT,VV> {
+    public static final String splitChar = "\\.";
 
     static Unreflect2<AccessibleObject,Boolean> fieldProxy = build(AccessibleObject.class,"override");
     static void makeAccessible(AccessibleObject accessor) {
@@ -71,7 +72,7 @@ public abstract class Unreflect<TT,VV> {
     }
     public static <VV> VV getField(Object cl,Meth<VV> meth,String ... names) {
         if (names.length==1)
-            names = names[0].split(",");
+            names = names[0].split(splitChar);
         try {
             int num = names.length-1;
             for (int ii = 0; ii <= num; ii++) {
@@ -103,7 +104,12 @@ public abstract class Unreflect<TT,VV> {
     }
     
     public static <TT,VV> Unreflect2<TT,VV> build(Class<TT> klass,String name) {
-        return new Unreflect2(klass,name);
+        String [] names = name.split(splitChar);
+        String firstName = names.length==0 ? name : names[0];
+        Unreflect2<TT,VV> ref = new Unreflect2(klass,firstName);
+        for (int ii=1; ii < names.length; ii++)
+            ref.chain(names[ii]);
+        return ref;
     }
 
     public static <TT,VV> Unreflect2<TT,VV> build(TT sample,String name) {
@@ -124,8 +130,7 @@ public abstract class Unreflect<TT,VV> {
     int rowPosition;
 
     Unreflect2(Class<TT> klass,String name) {
-        String [] names = name.split(".");
-        this.name = name = names.length==0 ? name : names[0];
+        this.name = name;
         this.klass = klass;
         isArray = klass.isArray();
         
@@ -146,12 +151,16 @@ public abstract class Unreflect<TT,VV> {
             else
                 offset = uu.objectFieldOffset(field);
         }
-        
-        for (int ii=1; ii < names.length; ii++)
-            chain(names[ii]);
     }
     public Unreflect2<TT,VV> chain(Class klass,String name) {
+        return chain(klass,name,false);
+    }
+    public Unreflect2 chain(String name) {
+        return chain(klass(),name,true);
+    }
+    private Unreflect2<TT,VV> chain(Class klass,String name,boolean safe) {
         Unreflect2 ref = new Unreflect2(klass,name);
+        // fixme -- if not safe, check class compatibility
         ref.rowPosition = last.rowPosition + (last.isArray ? 1:0);
         if (ref.isStatic)
             first = ref;
@@ -161,9 +170,6 @@ public abstract class Unreflect<TT,VV> {
     }
     public <XX> Unreflect2<TT,XX> target(Class<XX> klass) {
         return (Unreflect2<TT,XX>) this;
-    }
-    public Unreflect2 chain(String name) {
-        return chain(klass(),name);
     }
     public Class klass() {
         if (isArray) return klass.getComponentType();
@@ -447,15 +453,17 @@ public abstract class Unreflect<TT,VV> {
         
         vals[ii++] = getField(fd,uu::getInt,"fd");
         vals[ii++] = getField(raf,uu::getInt,"fd","fd");
-        vals[ii++] = getField(raf,uu::getInt,"fd,fd");
+        vals[ii++] = getField(raf,uu::getInt,"fd.fd");
 
         Unreflect2<FileDescriptor,?> ref = build(FileDescriptor.class,"fd");
         Unreflect2<RandomAccessFile,?> ref2 = build(RandomAccessFile.class,"fd").chain("fd");
+        Unreflect2<RandomAccessFile,?> ref3 = build(RandomAccessFile.class,"fd.fd");
         Unreflect2 tmp = build(RandomAccessFile.class,"O_TEMPORARY");
         
         
         vals[ii++] = ref.getInt(fd);
         vals[ii++] = ref2.getInt(raf);
+        vals[ii++] = ref3.getInt(raf);
         vals[ii++] = tmp.getInt(null); // 16
         for (int jj=0; jj < ii; jj++)
             System.out.println("ufd: " + vals[jj]);
