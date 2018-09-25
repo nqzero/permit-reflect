@@ -9,7 +9,7 @@ import static com.nqzero.unflect.UnsafeWrapper.uu;
 
 
 
-public abstract class Unreflect<TT,VV> {
+public abstract class SaferUnsafe<TT,VV> {
 
 
     public static class FieldNotFound extends RuntimeException {
@@ -25,7 +25,7 @@ public abstract class Unreflect<TT,VV> {
     }
 
     
-    static class Unreflect2<TT,VV> extends Unreflect<TT,VV> {
+    static class Safer<TT,VV> extends SaferUnsafe<TT,VV> {
 
     String name;
     Class klass;
@@ -34,12 +34,13 @@ public abstract class Unreflect<TT,VV> {
     boolean isArray;
     long offset;
     long scale;
-    Unreflect2 chain, last = this, first = null;
+        Safer chain;
+    Safer last = this, first = null;
     Object base;
     int rowPosition;
     boolean isKnown = true;
 
-    Unreflect2(Class<TT> klass,String name) {
+    Safer(Class<TT> klass,String name) {
         this.name = name;
         this.klass = klass;
         isArray = klass.isArray();
@@ -62,17 +63,17 @@ public abstract class Unreflect<TT,VV> {
                 offset = uu.objectFieldOffset(field);
         }
     }
-    public Unreflect2<TT,VV> chain(Class klass,String name) {
+    public Safer<TT,VV> chain(Class klass,String name) {
         Class nominal = last.klass();
         if (!nominal.isAssignableFrom(klass) & !klass.isAssignableFrom(nominal))
             throw new IncompatibleClasses(klass,nominal);
         return chain(klass,name,false);
     }
-    public Unreflect2 chain(String name) {
+    public Safer chain(String name) {
         return chain(last.klass(),name,true);
     }
-    private Unreflect2<TT,VV> chain(Class klass,String name,boolean known) {
-        Unreflect2 ref = new Unreflect2(klass,name);
+    private Safer<TT,VV> chain(Class klass,String name,boolean known) {
+        Safer ref = new Safer(klass,name);
         ref.isKnown = known;
         ref.rowPosition = last.rowPosition + (last.isArray ? 1:0);
         if (ref.isStatic)
@@ -81,21 +82,21 @@ public abstract class Unreflect<TT,VV> {
         last = ref;
         return this;
     }
-    public <XX> Unreflect2<TT,XX> target(Class<XX> klass) {
-        return (Unreflect2<TT,XX>) this;
+    public <XX> Safer<TT,XX> target(Class<XX> klass) {
+        return (Safer<TT,XX>) this;
     }
     public Class klass() {
         if (isArray) return klass.getComponentType();
         else return field.getType();
     }
 
-    public class Link extends Unreflect<TT,VV> {
+    public class Link extends SaferUnsafe<TT,VV> {
         int [] rows;
         long offset() {
-            return Unreflect2.this.last.addy(rows);
+            return Safer.this.last.addy(rows);
         }
         Object resolve(Object o) {
-            return Unreflect2.this.resolve(o,rows);
+            return Safer.this.resolve(o,rows);
         }
         public Link(int ... rows) {
             this.rows = rows;
@@ -113,7 +114,7 @@ public abstract class Unreflect<TT,VV> {
             return first.resolve(o);
         if (isStatic)
             o = base;
-        for (Unreflect2 ref=this; ref.chain != null; ref=ref.chain) {
+        for (Safer ref=this; ref.chain != null; ref=ref.chain) {
             assert(ref.isKnown | ref.klass.isInstance(o));
             o = uu.getObject(o,ref.addy(rows));
         }

@@ -8,7 +8,7 @@ import static com.nqzero.unflect.UnsafeWrapper.uu;
 
 public class Unflect {
     public static final String splitChar = "\\.";
-    static Unreflect.Unreflect2<AccessibleObject,Boolean> override = build(AccessibleObject.class,"override");
+    static SaferUnsafe.Safer<AccessibleObject,Boolean> override = build(AccessibleObject.class,"override");
     static void makeAccessible(AccessibleObject accessor) {
         override.putBoolean(accessor,true);
     }
@@ -27,11 +27,11 @@ public class Unflect {
             Method export = Module.class.getDeclaredMethod("implAddOpens",String.class);
             makeAccessible(export);
             HashSet<Module> modules = new HashSet();
-            Module base = Unreflect.class.getModule();
+            Module base = SaferUnsafe.class.getModule();
             if (base.getLayer() != null)
                 modules.addAll(base.getLayer().modules());
             modules.addAll(ModuleLayer.boot().modules());
-            for (ClassLoader cl = Unreflect.class.getClassLoader(); cl != null; cl = cl.getParent()) {
+            for (ClassLoader cl = SaferUnsafe.class.getClassLoader(); cl != null; cl = cl.getParent()) {
                 modules.add(cl.getUnnamedModule());
             }
             for (Module module : modules) {
@@ -81,16 +81,16 @@ public class Unflect {
         return null;
     }
 
-    public static <TT,VV> Unreflect.Unreflect2<TT,VV> build(Class<TT> klass,String name) {
+    public static <TT,VV> SaferUnsafe.Safer<TT,VV> build(Class<TT> klass,String name) {
         String [] names = name.split(splitChar);
         String firstName = names.length==0 ? name : names[0];
-        Unreflect.Unreflect2<TT,VV> ref = new Unreflect.Unreflect2(klass,firstName);
+        SaferUnsafe.Safer<TT,VV> ref = new SaferUnsafe.Safer(klass,firstName);
         for (int ii=1; ii < names.length; ii++)
             ref.chain(names[ii]);
         return ref;
     }
 
-    public static <TT,VV> Unreflect.Unreflect2<TT,VV> build(TT sample,String name) {
+    public static <TT,VV> SaferUnsafe.Safer<TT,VV> build(TT sample,String name) {
         return build((Class<TT>) sample.getClass(),name);
     }
     

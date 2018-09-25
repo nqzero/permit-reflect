@@ -4,7 +4,7 @@ import static com.nqzero.unflect.Unflect.getField;
 import static com.nqzero.unflect.Unflect.makeAccessible;
 import static com.nqzero.unflect.Unflect.unLog;
 import static com.nqzero.unflect.Unflect.build;
-import static com.nqzero.unflect.Unreflect.logger;
+import static com.nqzero.unflect.SaferUnsafe.logger;
 import java.io.FileDescriptor;
 import java.io.RandomAccessFile;
 import java.lang.reflect.AccessibleObject;
@@ -41,10 +41,10 @@ public class DemoUnflect {
         vals[ii++] = getField(raf,uu::getInt,"fd","fd");
         vals[ii++] = getField(raf,uu::getInt,"fd.fd");
 
-        Unreflect.Unreflect2<FileDescriptor,?> ref = build(FileDescriptor.class,"fd");
-        Unreflect.Unreflect2<RandomAccessFile,?> ref2 = build(RandomAccessFile.class,"fd").chain("fd");
-        Unreflect.Unreflect2<RandomAccessFile,?> ref3 = build(RandomAccessFile.class,"fd.fd");
-        Unreflect.Unreflect2 tmp = build(RandomAccessFile.class,"O_TEMPORARY");
+        SaferUnsafe.Safer<FileDescriptor,?> ref = build(FileDescriptor.class,"fd");
+        SaferUnsafe.Safer<RandomAccessFile,?> ref2 = build(RandomAccessFile.class,"fd").chain("fd");
+        SaferUnsafe.Safer<RandomAccessFile,?> ref3 = build(RandomAccessFile.class,"fd.fd");
+        SaferUnsafe.Safer tmp = build(RandomAccessFile.class,"O_TEMPORARY");
         
         
         vals[ii++] = ref.getInt(fd);
@@ -54,9 +54,9 @@ public class DemoUnflect {
         for (int jj=0; jj < ii; jj++)
             System.out.format("ufd %2d: %4d\n",jj,vals[jj]);
 
-        ClassLoader cl = Unreflect.class.getClassLoader();
+        ClassLoader cl = SaferUnsafe.class.getClassLoader();
         
-        Unreflect.Unreflect2<ClassLoader,String> app = build(cl,"ucp")
+        SaferUnsafe.Safer<ClassLoader,String> app = build(cl,"ucp")
                 .chain("path")
                 .chain(java.util.ArrayList.class,"elementData")
                 .chain("")
