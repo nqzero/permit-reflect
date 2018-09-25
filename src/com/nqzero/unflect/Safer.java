@@ -213,19 +213,5 @@ public abstract class Safer<TT,VV> {
     public final VV getAndSetObject(TT o,VV newValue) {
         return (VV) uu.getAndSetObject(resolve(o),offset(),newValue);
     }
-
-    
-    static Object logger(boolean expected) {
-        Object obj = null;
-        try {
-            obj = jdk.internal.module.IllegalAccessLogger.illegalAccessLogger();
-        }
-        catch (Throwable ex) {}
-        if (expected & obj==null)
-            throw new RuntimeException("mismatch: " + obj);
-        return obj;
-    }
-    
-
     
 }

@@ -1,8 +1,15 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nqzero</groupId>
-    <artifactId>reflect</artifactId>
+    <artifactId>demo-reflect</artifactId>
     <version>0.1</version>
+    <dependencies>
+        <dependency>
+            <groupId>com.nqzero</groupId>
+            <artifactId>reflect</artifactId>
+            <version>0.1</version>
+        </dependency>
+    </dependencies>
     <build>
         <sourceDirectory>src</sourceDirectory>
     </build>

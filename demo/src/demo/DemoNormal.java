@@ -1,6 +1,6 @@
-package com.nqzero.unflect;
+package demo;
 
-import static com.nqzero.unflect.Safer.logger;
+import com.nqzero.unflect.*;
 import java.io.FileDescriptor;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Field;
@@ -13,7 +13,7 @@ public class DemoNormal {
         FileDescriptor fd = raf.getFD();
         Field field = FileDescriptor.class.getDeclaredField("fd");
         Class log = Class.forName("jdk.internal.module.IllegalAccessLogger");
-        System.out.println("logger: " + logger(false));
+        System.out.println("logger: " + DemoUnflect.logger(false));
         try {
             field.setAccessible(true);
             vals[ii++] = field.getInt(fd);
