@@ -8,7 +8,7 @@ import static com.nqzero.unflect.UnsafeWrapper.uu;
 
 public class Unflect {
     public static final String splitChar = "\\.";
-    static SaferUnsafe.Safer<AccessibleObject,Boolean> override = build(AccessibleObject.class,"override");
+    static Safer<AccessibleObject,Boolean> override = build(AccessibleObject.class,"override");
     static void makeAccessible(AccessibleObject accessor) {
         override.putBoolean(accessor,true);
     }
@@ -81,16 +81,16 @@ public class Unflect {
         return null;
     }
 
-    public static <TT,VV> SaferUnsafe.Safer<TT,VV> build(Class<TT> klass,String name) {
+    public static <TT,VV> Safer<TT,VV> build(Class<TT> klass,String name) {
         String [] names = name.split(splitChar);
         String firstName = names.length==0 ? name : names[0];
-        SaferUnsafe.Safer<TT,VV> ref = new SaferUnsafe.Safer(klass,firstName);
+        Safer<TT,VV> ref = new Safer(klass,firstName);
         for (int ii=1; ii < names.length; ii++)
             ref.chain(names[ii]);
         return ref;
     }
 
-    public static <TT,VV> SaferUnsafe.Safer<TT,VV> build(TT sample,String name) {
+    public static <TT,VV> Safer<TT,VV> build(TT sample,String name) {
         return build((Class<TT>) sample.getClass(),name);
     }
     

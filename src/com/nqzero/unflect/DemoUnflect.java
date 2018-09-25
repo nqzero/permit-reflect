@@ -41,10 +41,10 @@ public class DemoUnflect {
         vals[ii++] = getField(raf,uu::getInt,"fd","fd");
         vals[ii++] = getField(raf,uu::getInt,"fd.fd");
 
-        SaferUnsafe.Safer<FileDescriptor,?> ref = build(FileDescriptor.class,"fd");
-        SaferUnsafe.Safer<RandomAccessFile,?> ref2 = build(RandomAccessFile.class,"fd").chain("fd");
-        SaferUnsafe.Safer<RandomAccessFile,?> ref3 = build(RandomAccessFile.class,"fd.fd");
-        SaferUnsafe.Safer tmp = build(RandomAccessFile.class,"O_TEMPORARY");
+        Safer<FileDescriptor,?> ref = build(FileDescriptor.class,"fd");
+        Safer<RandomAccessFile,?> ref2 = build(RandomAccessFile.class,"fd").chain("fd");
+        Safer<RandomAccessFile,?> ref3 = build(RandomAccessFile.class,"fd.fd");
+        Safer tmp = build(RandomAccessFile.class,"O_TEMPORARY");
         
         
         vals[ii++] = ref.getInt(fd);
@@ -56,7 +56,7 @@ public class DemoUnflect {
 
         ClassLoader cl = SaferUnsafe.class.getClassLoader();
         
-        SaferUnsafe.Safer<ClassLoader,String> app = build(cl,"ucp")
+        Safer<ClassLoader,String> app = build(cl,"ucp")
                 .chain("path")
                 .chain(java.util.ArrayList.class,"elementData")
                 .chain("")
