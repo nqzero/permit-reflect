@@ -3,13 +3,6 @@
     <groupId>com.nqzero</groupId>
     <artifactId>srlutils-demo-unsafe</artifactId>
     <version>0.1</version>
-    <dependencies>
-        <dependency>
-            <groupId>com.nqzero</groupId>
-            <artifactId>srlutils</artifactId>
-            <version>0.9.3</version>
-        </dependency>
-    </dependencies>
     <build>
         <sourceDirectory>src</sourceDirectory>
     </build>

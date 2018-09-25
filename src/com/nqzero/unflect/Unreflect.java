@@ -1,93 +1,16 @@
 package com.nqzero.unflect;
 
-import java.io.FileDescriptor;
-import java.io.RandomAccessFile;
-import java.lang.reflect.AccessibleObject;
+
+import static com.nqzero.unflect.Unflect.getSuperField;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.util.HashSet;
-import static org.srlutils.Unsafe.uu;
+import static com.nqzero.unflect.UnsafeWrapper.uu;
 
 
 
 
 public abstract class Unreflect<TT,VV> {
-    public static final String splitChar = "\\.";
 
-    static Unreflect2<AccessibleObject,Boolean> override = build(AccessibleObject.class,"override");
-    static void makeAccessible(AccessibleObject accessor) {
-        override.putBoolean(accessor,true);
-    }
-    static void unLog() {
-        try {
-            Class cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
-            build(cls,"logger").putObjectVolatile(null,null);
-        }
-        catch (ClassNotFoundException ex) {}
-    }
-
-
-    static boolean dbg = false;
-    public static void godMode() {
-        try {
-            Method export = Module.class.getDeclaredMethod("implAddOpens",String.class);
-            makeAccessible(export);
-            HashSet<Module> modules = new HashSet();
-            Module base = Unreflect.class.getModule();
-            if (base.getLayer() != null)
-                modules.addAll(base.getLayer().modules());
-            modules.addAll(ModuleLayer.boot().modules());
-            for (ClassLoader cl = Unreflect.class.getClassLoader(); cl != null; cl = cl.getParent()) {
-                modules.add(cl.getUnnamedModule());
-            }
-            for (Module module : modules) {
-                if (dbg) System.out.println("mod: " + module);
-                for (String name : module.getPackages()) {
-                    if (dbg) System.out.println("   " + name);
-                    try {
-                        export.invoke(module,name);
-                    }
-                    catch (Exception ex) {
-                        if (dbg) System.out.println("ex: " + ex);
-                    }
-                }
-            }
-        }
-        catch (NoSuchMethodException ex) {}
-        catch (SecurityException ex) {}
-    }
-    
-    public static Object getObject(Object cl,String name) {
-        try {
-            Field field = cl.getClass().getDeclaredField(name);
-            long offset = uu.objectFieldOffset(field);
-            return uu.getObject(cl,offset);
-        }
-        catch (Exception ex) {}
-        return null;
-    }
-    public interface Meth<VV> {
-        public VV meth(Object obj,long offset);
-    }
-    public static <VV> VV getField(Object cl,Meth<VV> meth,String ... names) {
-        if (names.length==1)
-            names = names[0].split(splitChar);
-        try {
-            int num = names.length-1;
-            for (int ii = 0; ii <= num; ii++) {
-                Field field = cl.getClass().getDeclaredField(names[ii]);
-                long offset = uu.objectFieldOffset(field);
-                if (ii < num)
-                    cl = uu.getObject(cl,offset);
-                else
-                    return meth.meth(cl,offset);
-            }
-        }
-        catch (Exception ex) {}
-        return null;
-    }
 
     public static class FieldNotFound extends RuntimeException {
         public FieldNotFound(Exception ex) { super(ex); }
@@ -101,29 +24,6 @@ public abstract class Unreflect<TT,VV> {
         }
     }
 
-    static Field getSuperField(Class klass,String name) {
-        for (; klass != Object.class; klass = klass.getSuperclass()) {
-            try {
-                return klass.getDeclaredField(name);
-            }
-            catch (NoSuchFieldException ex) {}
-            catch (SecurityException ex) {}
-        }
-        return null;
-    }
-    
-    public static <TT,VV> Unreflect2<TT,VV> build(Class<TT> klass,String name) {
-        String [] names = name.split(splitChar);
-        String firstName = names.length==0 ? name : names[0];
-        Unreflect2<TT,VV> ref = new Unreflect2(klass,firstName);
-        for (int ii=1; ii < names.length; ii++)
-            ref.chain(names[ii]);
-        return ref;
-    }
-
-    public static <TT,VV> Unreflect2<TT,VV> build(TT sample,String name) {
-        return build((Class<TT>) sample.getClass(),name);
-    }
     
     static class Unreflect2<TT,VV> extends Unreflect<TT,VV> {
 
@@ -442,68 +342,6 @@ public abstract class Unreflect<TT,VV> {
         return obj;
     }
     
-    public static void main(String[] args) throws Exception {
-        int [] vals = new int[10];
-        int ii = 0;
-        RandomAccessFile raf = new RandomAccessFile("/etc/hosts","r");
-        FileDescriptor fd = raf.getFD();
-        Field field = FileDescriptor.class.getDeclaredField("fd");
-        Class ka = AccessibleObject.class;
-//        logger(false);
-        Method export = Module.class.getDeclaredMethod("implAddOpens",String.class);
-        makeAccessible(export);
-        Class log = Class.forName("jdk.internal.module.IllegalAccessLogger");
-        export.invoke(log.getModule(),"jdk.internal.module");
-        System.out.println("logger: " + logger(true));
-        unLog();
-        try {
-            field.setAccessible(true);
-            vals[ii++] = field.getInt(fd);
-        }
-        catch (Throwable ex) {
-            vals[ii++] = -1;
-        }
-        makeAccessible(field);
-        vals[ii++] = field.getInt(fd);
-        
-        vals[ii++] = getField(fd,uu::getInt,"fd");
-        vals[ii++] = getField(raf,uu::getInt,"fd","fd");
-        vals[ii++] = getField(raf,uu::getInt,"fd.fd");
-
-        Unreflect2<FileDescriptor,?> ref = build(FileDescriptor.class,"fd");
-        Unreflect2<RandomAccessFile,?> ref2 = build(RandomAccessFile.class,"fd").chain("fd");
-        Unreflect2<RandomAccessFile,?> ref3 = build(RandomAccessFile.class,"fd.fd");
-        Unreflect2 tmp = build(RandomAccessFile.class,"O_TEMPORARY");
-        
-        
-        vals[ii++] = ref.getInt(fd);
-        vals[ii++] = ref2.getInt(raf);
-        vals[ii++] = ref3.getInt(raf);
-        vals[ii++] = tmp.getInt(null); // 16
-        for (int jj=0; jj < ii; jj++)
-            System.out.format("ufd %2d: %4d\n",jj,vals[jj]);
-
-        ClassLoader cl = Unreflect.class.getClassLoader();
-        
-        Unreflect2<ClassLoader,String> app = build(cl,"ucp")
-                .chain("path")
-                .chain(java.util.ArrayList.class,"elementData")
-                .chain("")
-                .chain(URL.class,"path")
-                .target(String.class);
-        String path = app.link(0).getObject(cl);
-        System.out.println("path: " + path);
-        godMode();
-
-
-
-        jdk.internal.jshell.tool.JShellToolBuilder obj = new jdk.internal.jshell.tool.JShellToolBuilder();
-        jdk.internal.jshell.tool.JShellTool tool = obj.rawTool();
-        if (args.length > 0)
-            tool.start(args);
-
-        System.out.println("tool: " + obj);
-    }
 
     
 }
