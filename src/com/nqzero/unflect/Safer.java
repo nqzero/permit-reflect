@@ -52,7 +52,7 @@ public class Safer<TT,VV> extends SaferUnsafe<TT,VV> {
     public Safer chain(String name) throws FieldNotFound {
         return chain(last.klass(),name,true);
     }
-    private Safer<TT,VV> chain(Class klass,String name,boolean known) throws FieldNotFound {
+    protected Safer<TT,VV> chain(Class klass,String name,boolean known) throws FieldNotFound {
         Safer ref = new Safer(klass,name);
         ref.isKnown = known;
         ref.rowPosition = last.rowPosition + (last.isArray ? 1:0);
@@ -65,17 +65,17 @@ public class Safer<TT,VV> extends SaferUnsafe<TT,VV> {
     public <XX> Safer<TT,XX> target(Class<XX> klass) {
         return (Safer<TT,XX>) this;
     }
-    private Class klass() {
+    protected Class klass() {
         if (isArray) return klass.getComponentType();
         else return field.getType();
     }
 
     public class Linked extends SaferUnsafe<TT,VV> {
         int [] rows;
-        long offset() {
+        protected long offset() {
             return Safer.this.last.addy(rows);
         }
-        Object resolve(Object o) {
+        protected Object resolve(Object o) {
             return Safer.this.resolve(o,rows);
         }
         public Linked(int ... rows) {
@@ -86,10 +86,10 @@ public class Safer<TT,VV> extends SaferUnsafe<TT,VV> {
         return new Linked(rows);
     }
     
-    Object resolve(Object o) {
+    protected Object resolve(Object o) {
         return resolve(o,new int[0]);
     }    
-    Object resolve(Object o,int [] rows) {
+    protected Object resolve(Object o,int [] rows) {
         if (first != null)
             return first.resolve(o);
         if (isStatic)
@@ -101,13 +101,13 @@ public class Safer<TT,VV> extends SaferUnsafe<TT,VV> {
         return o;
     }
     
-    long addy(int [] rows) {
+    protected long addy(int [] rows) {
         return isArray
                 ? offset+scale*rows[rowPosition]
                 : offset;
     }
     
-    long offset() { return last.offset; }
+    protected long offset() { return last.offset; }
 
     
     

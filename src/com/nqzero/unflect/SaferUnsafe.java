@@ -15,8 +15,8 @@ public abstract class SaferUnsafe<TT,VV> {
 
 
     
-    abstract long offset();
-    abstract Object resolve(TT o);
+    protected abstract long offset();
+    protected abstract Object resolve(TT o);
     
     public int getInt(TT o) {
         return uu.getInt(resolve(o),offset());
