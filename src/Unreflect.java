@@ -91,6 +91,14 @@ public abstract class Unreflect<TT,VV> {
     public static class FieldNotFound extends RuntimeException {
         public FieldNotFound(Exception ex) { super(ex); }
     }
+    public static class IncompatibleClasses extends RuntimeException {
+        Class klass, nominal;
+        public IncompatibleClasses(Class klass,Class nominal) {
+            super(klass + " and " + nominal + " aren't assignable");
+            this.klass = klass;
+            this.nominal = nominal;
+        }
+    }
 
     static Field getSuperField(Class klass,String name) {
         for (; klass != Object.class; klass = klass.getSuperclass()) {
@@ -128,6 +136,7 @@ public abstract class Unreflect<TT,VV> {
     Unreflect2 chain, last = this, first = null;
     Object base;
     int rowPosition;
+    boolean isKnown = true;
 
     Unreflect2(Class<TT> klass,String name) {
         this.name = name;
@@ -153,14 +162,17 @@ public abstract class Unreflect<TT,VV> {
         }
     }
     public Unreflect2<TT,VV> chain(Class klass,String name) {
+        Class nominal = last.klass();
+        if (!nominal.isAssignableFrom(klass) & !klass.isAssignableFrom(nominal))
+            throw new IncompatibleClasses(klass,nominal);
         return chain(klass,name,false);
     }
     public Unreflect2 chain(String name) {
-        return chain(klass(),name,true);
+        return chain(last.klass(),name,true);
     }
-    private Unreflect2<TT,VV> chain(Class klass,String name,boolean safe) {
+    private Unreflect2<TT,VV> chain(Class klass,String name,boolean known) {
         Unreflect2 ref = new Unreflect2(klass,name);
-        // fixme -- if not safe, check class compatibility
+        ref.isKnown = known;
         ref.rowPosition = last.rowPosition + (last.isArray ? 1:0);
         if (ref.isStatic)
             first = ref;
@@ -173,7 +185,7 @@ public abstract class Unreflect<TT,VV> {
     }
     public Class klass() {
         if (isArray) return klass.getComponentType();
-        else return last.field.getType();
+        else return field.getType();
     }
 
     public class Link extends Unreflect<TT,VV> {
@@ -200,8 +212,10 @@ public abstract class Unreflect<TT,VV> {
             return first.resolve(o);
         if (isStatic)
             o = base;
-        for (Unreflect2 ref=this; ref.chain != null; ref=ref.chain)
+        for (Unreflect2 ref=this; ref.chain != null; ref=ref.chain) {
+            assert(ref.isKnown | ref.klass.isInstance(o));
             o = uu.getObject(o,ref.addy(rows));
+        }
         return o;
     }
     
