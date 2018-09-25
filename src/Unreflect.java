@@ -14,14 +14,14 @@ import static org.srlutils.Unsafe.uu;
 
 public abstract class Unreflect<TT,VV> {
 
-    static Unreflect2<AccessibleObject,Boolean> fieldProxy = new Unreflect2(AccessibleObject.class,"override");
+    static Unreflect2<AccessibleObject,Boolean> fieldProxy = build(AccessibleObject.class,"override");
     static void makeAccessible(AccessibleObject accessor) {
         fieldProxy.putBoolean(accessor,true);
     }
     static void unLog() {
         try {
             Class cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
-            new Unreflect2(cls,"logger").putObjectVolatile(null,null);
+            build(cls,"logger").putObjectVolatile(null,null);
         }
         catch (ClassNotFoundException ex) {}
     }
@@ -102,6 +102,14 @@ public abstract class Unreflect<TT,VV> {
         return null;
     }
     
+    public static <TT,VV> Unreflect2<TT,VV> build(Class<TT> klass,String name) {
+        return new Unreflect2(klass,name);
+    }
+
+    public static <TT,VV> Unreflect2<TT,VV> build(TT sample,String name) {
+        return build((Class<TT>) sample.getClass(),name);
+    }
+    
     static class Unreflect2<TT,VV> extends Unreflect<TT,VV> {
 
     String name;
@@ -115,9 +123,6 @@ public abstract class Unreflect<TT,VV> {
     Object base;
     int rowPosition;
 
-    Unreflect2(TT sample,String name) {
-        this((Class<TT>) sample.getClass(),name);
-    }
     Unreflect2(Class<TT> klass,String name) {
         String [] names = name.split(".");
         this.name = name = names.length==0 ? name : names[0];
@@ -444,9 +449,9 @@ public abstract class Unreflect<TT,VV> {
         vals[ii++] = getField(raf,uu::getInt,"fd","fd");
         vals[ii++] = getField(raf,uu::getInt,"fd,fd");
 
-        Unreflect2<FileDescriptor,?> ref = new Unreflect2(FileDescriptor.class,"fd");
-        Unreflect2<RandomAccessFile,?> ref2 = new Unreflect2(RandomAccessFile.class,"fd").chain("fd");
-        Unreflect2 tmp = new Unreflect2(RandomAccessFile.class,"O_TEMPORARY");
+        Unreflect2<FileDescriptor,?> ref = build(FileDescriptor.class,"fd");
+        Unreflect2<RandomAccessFile,?> ref2 = build(RandomAccessFile.class,"fd").chain("fd");
+        Unreflect2 tmp = build(RandomAccessFile.class,"O_TEMPORARY");
         
         
         vals[ii++] = ref.getInt(fd);
@@ -457,7 +462,7 @@ public abstract class Unreflect<TT,VV> {
 
         ClassLoader cl = Unreflect.class.getClassLoader();
         
-        Unreflect2<ClassLoader,URL> app = new Unreflect2(cl,"ucp")
+        Unreflect2<ClassLoader,URL> app = build(cl,"ucp")
                 .chain("path")
                 .chain(java.util.ArrayList.class,"elementData")
                 .chain("")
@@ -470,7 +475,8 @@ public abstract class Unreflect<TT,VV> {
 
         jdk.internal.jshell.tool.JShellToolBuilder obj = new jdk.internal.jshell.tool.JShellToolBuilder();
         jdk.internal.jshell.tool.JShellTool tool = obj.rawTool();
-        tool.start(args);
+        if (args.length > 0)
+            tool.start(args);
 
         System.out.println("tool: " + obj);
     }
