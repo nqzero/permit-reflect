@@ -1,6 +1,6 @@
 package com.nqzero.unflect;
 
-import static com.nqzero.unflect.Unflect.getSuperField;
+import static com.nqzero.unflect.Unflect.*;
 import static com.nqzero.unflect.UnsafeWrapper.uu;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -33,7 +33,7 @@ public class Safer<TT,VV> extends SaferUnsafe<TT,VV> {
             Exception ex = null;
             field = getSuperField(klass,name);
             if (field==null)
-                throw new SaferUnsafe.FieldNotFound(ex);
+                throw new FieldNotFound(name,ex);
             isStatic = Modifier.isStatic(field.getModifiers());
             if (isStatic) {
                 base = uu.staticFieldBase(field);
@@ -46,7 +46,7 @@ public class Safer<TT,VV> extends SaferUnsafe<TT,VV> {
     public Safer<TT,VV> chain(Class klass,String name) {
         Class nominal = last.klass();
         if (!nominal.isAssignableFrom(klass) & !klass.isAssignableFrom(nominal))
-            throw new SaferUnsafe.IncompatibleClasses(klass,nominal);
+            throw new IncompatibleClasses(klass,nominal);
         return chain(klass,name,false);
     }
     public Safer chain(String name) {
@@ -65,12 +65,12 @@ public class Safer<TT,VV> extends SaferUnsafe<TT,VV> {
     public <XX> Safer<TT,XX> target(Class<XX> klass) {
         return (Safer<TT,XX>) this;
     }
-    public Class klass() {
+    private Class klass() {
         if (isArray) return klass.getComponentType();
         else return field.getType();
     }
 
-    public class Link extends SaferUnsafe<TT,VV> {
+    public class Linked extends SaferUnsafe<TT,VV> {
         int [] rows;
         long offset() {
             return Safer.this.last.addy(rows);
@@ -78,12 +78,12 @@ public class Safer<TT,VV> extends SaferUnsafe<TT,VV> {
         Object resolve(Object o) {
             return Safer.this.resolve(o,rows);
         }
-        public Link(int ... rows) {
+        public Linked(int ... rows) {
             this.rows = rows;
         }
     }
-    public Link link(int ... rows) {
-        return new Link(rows);
+    public Linked link(int ... rows) {
+        return new Linked(rows);
     }
     
     Object resolve(Object o) {

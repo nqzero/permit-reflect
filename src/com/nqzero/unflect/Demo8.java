@@ -1,7 +1,7 @@
 package com.nqzero.unflect;
 
+import com.nqzero.unflect.SaferUnsafe.Meth;
 import static com.nqzero.unflect.Unflect.getField;
-import static com.nqzero.unflect.Unflect.makeAccessible;
 import static com.nqzero.unflect.Unflect.unLog;
 import static com.nqzero.unflect.Unflect.build;
 import java.io.FileDescriptor;
@@ -9,6 +9,7 @@ import java.io.RandomAccessFile;
 import java.lang.reflect.Field;
 import java.net.URL;
 import static com.nqzero.unflect.UnsafeWrapper.uu;
+import static com.nqzero.unflect.Unflect.setAccessible;
 
 // duplicate the full demo since it uses java 11 classes for some of the tests (which are removed here)
 public class Demo8 {
@@ -26,14 +27,14 @@ public class Demo8 {
         catch (Throwable ex) {
             vals[ii++] = -1;
         }
-        makeAccessible(field);
+        setAccessible(field);
         vals[ii++] = field.getInt(fd);
 
 
         // for java 8 and later, use uu::getInt instead of meth
         // but want this to compile with java 6
         
-        Unflect.Meth<Integer> meth = new Unflect.Meth() {
+        Meth<Integer> meth = new Meth() {
             public Object meth(Object arg0,long arg1) {
                 return uu.getInt(arg0,arg1);
             }
@@ -46,7 +47,6 @@ public class Demo8 {
         Safer<FileDescriptor,?> ref = build(FileDescriptor.class,"fd");
         Safer<RandomAccessFile,?> ref2 = build(RandomAccessFile.class,"fd").chain("fd");
         Safer<RandomAccessFile,?> ref3 = build(RandomAccessFile.class,"fd.fd");
-        
         
         vals[ii++] = ref.getInt(fd);
         vals[ii++] = ref2.getInt(raf);

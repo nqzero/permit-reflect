@@ -1,15 +1,15 @@
 package com.nqzero.unflect;
 
 import static com.nqzero.unflect.Unflect.dbg;
-import static com.nqzero.unflect.Unflect.makeAccessible;
 import java.lang.reflect.Method;
 import java.util.HashSet;
+import static com.nqzero.unflect.Unflect.setAccessible;
 
 public class Support11 {
     public static void godMode() {
         try {
             Method export = Module.class.getDeclaredMethod("implAddOpens",String.class);
-            makeAccessible(export);
+            setAccessible(export);
             HashSet<Module> modules = new HashSet();
             Module base = SaferUnsafe.class.getModule();
             if (base.getLayer() != null)

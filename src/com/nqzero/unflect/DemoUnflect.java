@@ -1,7 +1,7 @@
 package com.nqzero.unflect;
 
+import com.nqzero.unflect.SaferUnsafe.Meth;
 import static com.nqzero.unflect.Unflect.getField;
-import static com.nqzero.unflect.Unflect.makeAccessible;
 import static com.nqzero.unflect.Unflect.unLog;
 import static com.nqzero.unflect.Unflect.build;
 import static com.nqzero.unflect.SaferUnsafe.logger;
@@ -12,6 +12,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import static com.nqzero.unflect.UnsafeWrapper.uu;
+import static com.nqzero.unflect.Unflect.setAccessible;
 
 public class DemoUnflect {
     public static void main(String[] args) throws Exception {
@@ -22,7 +23,7 @@ public class DemoUnflect {
         Field field = FileDescriptor.class.getDeclaredField("fd");
         Class ka = AccessibleObject.class;
         Method export = Module.class.getDeclaredMethod("implAddOpens",String.class);
-        makeAccessible(export);
+        setAccessible(export);
         Class log = Class.forName("jdk.internal.module.IllegalAccessLogger");
         export.invoke(log.getModule(),"jdk.internal.module");
         System.out.println("logger: " + logger(true));
@@ -34,14 +35,14 @@ public class DemoUnflect {
         catch (Throwable ex) {
             vals[ii++] = -1;
         }
-        makeAccessible(field);
+        setAccessible(field);
         vals[ii++] = field.getInt(fd);
 
 
         // for java 8 and later, use uu::getInt instead of meth
         // but want this to compile with java 6
         
-        Unflect.Meth<Integer> meth = new Unflect.Meth() {
+        Meth<Integer> meth = new Meth() {
             public Object meth(Object arg0,long arg1) {
                 return uu.getInt(arg0,arg1);
             }

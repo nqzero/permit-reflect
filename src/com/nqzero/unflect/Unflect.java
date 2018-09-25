@@ -1,5 +1,6 @@
 package com.nqzero.unflect;
 
+import com.nqzero.unflect.SaferUnsafe.Meth;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import static com.nqzero.unflect.UnsafeWrapper.uu;
@@ -7,11 +8,15 @@ import java.lang.reflect.Method;
 
 public class Unflect {
     public static final String splitChar = "\\.";
+
     static Safer<AccessibleObject,Boolean> override = build(AccessibleObject.class,"override");
-    static void makeAccessible(AccessibleObject accessor) {
+
+    
+    public static void setAccessible(AccessibleObject accessor) {
         override.putBoolean(accessor,true);
     }
-    static void unLog() {
+
+    public static void unLog() {
         try {
             Class cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
             build(cls,"logger").putObjectVolatile(null,null);
@@ -36,15 +41,12 @@ public class Unflect {
     
     public static Object getObject(Object cl,String name) {
         try {
-            Field field = cl.getClass().getDeclaredField(name);
+            Field field = getSuperField(cl.getClass(),name);
             long offset = uu.objectFieldOffset(field);
             return uu.getObject(cl,offset);
         }
         catch (Exception ex) {}
         return null;
-    }
-    public interface Meth<VV> {
-        public VV meth(Object obj,long offset);
     }
     public static <VV> VV getField(Object cl,Meth<VV> meth,String ... names) {
         if (names.length==1)
@@ -52,7 +54,7 @@ public class Unflect {
         try {
             int num = names.length-1;
             for (int ii = 0; ii <= num; ii++) {
-                Field field = cl.getClass().getDeclaredField(names[ii]);
+                Field field = getSuperField(cl.getClass(),names[ii]);
                 long offset = uu.objectFieldOffset(field);
                 if (ii < num)
                     cl = uu.getObject(cl,offset);
@@ -60,8 +62,27 @@ public class Unflect {
                     return meth.meth(cl,offset);
             }
         }
-        catch (Exception ex) {}
+        catch (Throwable ex) {
+            throw new FieldNotFound(String.join(splitChar,names),ex);
+        }
         return null;
+    }
+
+    public static class FieldNotFound extends RuntimeException {
+        String name;
+        public FieldNotFound(String name,Throwable ex) {
+            super("field \"" + name + "\" not found",ex);
+            this.name = name;
+        }
+    }
+
+    public static class IncompatibleClasses extends RuntimeException {
+        Class klass, nominal;
+        public IncompatibleClasses(Class klass,Class nominal) {
+            super(klass + " and " + nominal + " aren't assignable");
+            this.klass = klass;
+            this.nominal = nominal;
+        }
     }
 
     public static <TT,VV> Safer<TT,VV> build(Class<TT> klass,String name) {
@@ -77,7 +98,7 @@ public class Unflect {
         return build((Class<TT>) sample.getClass(),name);
     }
     
-    static Field getSuperField(Class klass,String name) {
+    public static Field getSuperField(Class klass,String name) {
         for (; klass != Object.class; klass = klass.getSuperclass()) {
             try {
                 return klass.getDeclaredField(name);

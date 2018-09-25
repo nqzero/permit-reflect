@@ -9,16 +9,8 @@ import static com.nqzero.unflect.UnsafeWrapper.uu;
 public abstract class SaferUnsafe<TT,VV> {
 
 
-    public static class FieldNotFound extends RuntimeException {
-        public FieldNotFound(Exception ex) { super(ex); }
-    }
-    public static class IncompatibleClasses extends RuntimeException {
-        Class klass, nominal;
-        public IncompatibleClasses(Class klass,Class nominal) {
-            super(klass + " and " + nominal + " aren't assignable");
-            this.klass = klass;
-            this.nominal = nominal;
-        }
+    public interface Meth<VV> {
+        public VV meth(Object obj,long offset);
     }
 
 
