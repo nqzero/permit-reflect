@@ -15,9 +15,9 @@ import static org.srlutils.Unsafe.uu;
 public abstract class Unreflect<TT,VV> {
     public static final String splitChar = "\\.";
 
-    static Unreflect2<AccessibleObject,Boolean> fieldProxy = build(AccessibleObject.class,"override");
+    static Unreflect2<AccessibleObject,Boolean> override = build(AccessibleObject.class,"override");
     static void makeAccessible(AccessibleObject accessor) {
-        fieldProxy.putBoolean(accessor,true);
+        override.putBoolean(accessor,true);
     }
     static void unLog() {
         try {
