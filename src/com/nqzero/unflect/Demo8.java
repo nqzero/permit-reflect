@@ -28,10 +28,20 @@ public class Demo8 {
         }
         makeAccessible(field);
         vals[ii++] = field.getInt(fd);
+
+
+        // for java 8 and later, use uu::getInt instead of meth
+        // but want this to compile with java 6
         
-        vals[ii++] = getField(fd,uu::getInt,"fd");
-        vals[ii++] = getField(raf,uu::getInt,"fd","fd");
-        vals[ii++] = getField(raf,uu::getInt,"fd.fd");
+        Unflect.Meth<Integer> meth = new Unflect.Meth() {
+            public Object meth(Object arg0,long arg1) {
+                return uu.getInt(arg0,arg1);
+            }
+        };
+        
+        vals[ii++] = getField(fd,meth,"fd");
+        vals[ii++] = getField(raf,meth,"fd","fd");
+        vals[ii++] = getField(raf,meth,"fd.fd");
 
         Safer<FileDescriptor,?> ref = build(FileDescriptor.class,"fd");
         Safer<RandomAccessFile,?> ref2 = build(RandomAccessFile.class,"fd").chain("fd");
