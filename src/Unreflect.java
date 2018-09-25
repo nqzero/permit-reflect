@@ -470,13 +470,14 @@ public abstract class Unreflect<TT,VV> {
 
         ClassLoader cl = Unreflect.class.getClassLoader();
         
-        Unreflect2<ClassLoader,URL> app = build(cl,"ucp")
+        Unreflect2<ClassLoader,String> app = build(cl,"ucp")
                 .chain("path")
                 .chain(java.util.ArrayList.class,"elementData")
                 .chain("")
-                .target(URL.class);
-        URL stuff = app.link(0).getObject(cl);
-        System.out.println("stuff: " + stuff);
+                .chain(URL.class,"path")
+                .target(String.class);
+        String path = app.link(0).getObject(cl);
+        System.out.println("path: " + path);
         godMode();
 
 
