@@ -1,16 +1,17 @@
 package demo;
 
-import com.nqzero.unflect.*;
-import com.nqzero.unflect.Safer.Meth;
-import static com.nqzero.unflect.Unflect.getField;
-import static com.nqzero.unflect.Unflect.unLog;
-import static com.nqzero.unflect.Unflect.build;
+import com.nqzero.permit.Safer;
+import com.nqzero.permit.Permit;
+import com.nqzero.permit.Safer.Meth;
+import static com.nqzero.permit.Permit.getField;
+import static com.nqzero.permit.Permit.unLog;
+import static com.nqzero.permit.Permit.build;
 import java.io.FileDescriptor;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Field;
 import java.net.URL;
-import static com.nqzero.unflect.Unsafer.uu;
-import static com.nqzero.unflect.Unflect.setAccessible;
+import static com.nqzero.permit.Unsafer.uu;
+import static com.nqzero.permit.Permit.setAccessible;
 
 // duplicate the full demo since it uses java 11 classes for some of the tests (which are removed here)
 public class Demo8 {
@@ -45,9 +46,9 @@ public class Demo8 {
         vals[ii++] = getField(raf,meth,"fd","fd");
         vals[ii++] = getField(raf,meth,"fd.fd");
 
-        Unflect<FileDescriptor,?> ref = build(FileDescriptor.class,"fd");
-        Unflect<RandomAccessFile,?> ref2 = build(RandomAccessFile.class,"fd").chain("fd");
-        Unflect<RandomAccessFile,?> ref3 = build(RandomAccessFile.class,"fd.fd");
+        Permit<FileDescriptor,?> ref = build(FileDescriptor.class,"fd");
+        Permit<RandomAccessFile,?> ref2 = build(RandomAccessFile.class,"fd").chain("fd");
+        Permit<RandomAccessFile,?> ref3 = build(RandomAccessFile.class,"fd.fd");
         
         vals[ii++] = ref.getInt(fd);
         vals[ii++] = ref2.getInt(raf);
@@ -57,7 +58,7 @@ public class Demo8 {
 
         ClassLoader cl = Safer.class.getClassLoader();
         
-        Unflect<ClassLoader,String> app = build(cl,"ucp")
+        Permit<ClassLoader,String> app = build(cl,"ucp")
                 .chain("path")
                 .chain(java.util.ArrayList.class,"elementData")
                 .chain("")
@@ -65,7 +66,7 @@ public class Demo8 {
                 .target(String.class);
         String path = app.link(0).getObject(cl);
         System.out.println("path: " + path);
-        Unflect.godMode();
+        Permit.godMode();
 
 
 

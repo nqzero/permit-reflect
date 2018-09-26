@@ -1,15 +1,15 @@
-package com.nqzero.unflect;
+package com.nqzero.permit;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
 
-public class Support9 {
+public class JigsawImpl {
     static boolean dbg = false;
 
     public static void godMode() {
         try {
             Method export = Module.class.getDeclaredMethod("implAddOpens",String.class);
-            Unflect.setAccessible(export);
+            Permit.setAccessible(export);
             HashSet<Module> modules = new HashSet();
             Module base = Safer.class.getModule();
             if (base.getLayer() != null)

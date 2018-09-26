@@ -1,7 +1,7 @@
-package com.nqzero.unflect;
+package com.nqzero.permit;
 
 
-import static com.nqzero.unflect.Unsafer.uu;
+import static com.nqzero.permit.Unsafer.uu;
 
 
 

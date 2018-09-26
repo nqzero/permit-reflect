@@ -1,16 +1,16 @@
-package com.nqzero.unflect;
+package com.nqzero.permit;
 
-import com.nqzero.unflect.Safer.Meth;
+import com.nqzero.permit.Safer.Meth;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
-import static com.nqzero.unflect.Unsafer.uu;
+import static com.nqzero.permit.Unsafer.uu;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-public class Unflect<TT,VV> extends Safer<TT,VV> {
+public class Permit<TT,VV> extends Safer<TT,VV> {
     public static final String splitChar = "\\.";
 
-    static Unflect<AccessibleObject,Boolean> override = build(AccessibleObject.class,"override");
+    static Permit<AccessibleObject,Boolean> override = build(AccessibleObject.class,"override");
 
     
     public static void setAccessible(AccessibleObject accessor) {
@@ -26,16 +26,19 @@ public class Unflect<TT,VV> extends Safer<TT,VV> {
     }
 
 
+    static String jigsaw = "JigsawImpl";
     public static void godMode() {
         try {
             // this will fail on java 8 and lower
             // but load with at least java 9-11
-            Class base = Unflect.class;
-            Class klass = base.getClassLoader().loadClass(base.getPackageName() + ".Support9");
+            Class base = Permit.class;
+            Class klass = base.getClassLoader().loadClass(base.getPackageName() + "." + jigsaw);
             Method method = klass.getMethod("godMode");
             method.invoke(null);
         }
-        catch (Throwable ex) {}
+        catch (Throwable ex) {
+            System.out.println("god: " + ex);
+        }
             
     }
 
@@ -86,16 +89,16 @@ public class Unflect<TT,VV> extends Safer<TT,VV> {
         }
     }
 
-    public static <TT,VV> Unflect<TT,VV> build(Class<TT> klass,String name) throws FieldNotFound {
+    public static <TT,VV> Permit<TT,VV> build(Class<TT> klass,String name) throws FieldNotFound {
         String [] names = name.split(splitChar);
         String firstName = names.length==0 ? name : names[0];
-        Unflect<TT,VV> ref = new Unflect(klass,firstName);
+        Permit<TT,VV> ref = new Permit(klass,firstName);
         for (int ii=1; ii < names.length; ii++)
             ref.chain(names[ii]);
         return ref;
     }
 
-    public static <TT,VV> Unflect<TT,VV> build(TT sample,String name) throws FieldNotFound {
+    public static <TT,VV> Permit<TT,VV> build(TT sample,String name) throws FieldNotFound {
         return build((Class<TT>) sample.getClass(),name);
     }
     
@@ -135,7 +138,7 @@ public class Unflect<TT,VV> extends Safer<TT,VV> {
         godMode();
         String className = args[0];
         args = processArgs(args);
-        Class mainClass = Unflect.class.getClassLoader().loadClass(className);
+        Class mainClass = Permit.class.getClassLoader().loadClass(className);
         Method mainMethod = mainClass.getMethod("main", new Class[]{String[].class});
         mainMethod.invoke(null,new Object[] {args});
         
@@ -149,14 +152,14 @@ public class Unflect<TT,VV> extends Safer<TT,VV> {
     boolean isArray;
     long offset;
     long scale;
-    Unflect chain;
-    Unflect last = this;
-    Unflect first;
+    Permit chain;
+    Permit last = this;
+    Permit first;
     Object base;
     int rowPosition;
     boolean isKnown = true;
 
-    protected Unflect(Class<TT> klass,String name) throws FieldNotFound {
+    protected Permit(Class<TT> klass,String name) throws FieldNotFound {
         this.name = name;
         this.klass = klass;
         isArray = klass.isArray();
@@ -179,17 +182,17 @@ public class Unflect<TT,VV> extends Safer<TT,VV> {
                 offset = uu.objectFieldOffset(field);
         }
     }
-    public Unflect<TT,VV> chain(Class klass,String name) throws FieldNotFound, IncompatibleClasses {
+    public Permit<TT,VV> chain(Class klass,String name) throws FieldNotFound, IncompatibleClasses {
         Class nominal = last.klass();
         if (!nominal.isAssignableFrom(klass) & !klass.isAssignableFrom(nominal))
             throw new IncompatibleClasses(klass,nominal);
         return chain(klass,name,false);
     }
-    public Unflect chain(String name) throws FieldNotFound {
+    public Permit chain(String name) throws FieldNotFound {
         return chain(last.klass(),name,true);
     }
-    protected Unflect<TT,VV> chain(Class klass,String name,boolean known) throws FieldNotFound {
-        Unflect ref = new Unflect(klass,name);
+    protected Permit<TT,VV> chain(Class klass,String name,boolean known) throws FieldNotFound {
+        Permit ref = new Permit(klass,name);
         ref.isKnown = known;
         ref.rowPosition = last.rowPosition + (last.isArray ? 1:0);
         if (ref.isStatic)
@@ -198,8 +201,8 @@ public class Unflect<TT,VV> extends Safer<TT,VV> {
         last = ref;
         return this;
     }
-    public <XX> Unflect<TT,XX> target(Class<XX> klass) {
-        return (Unflect<TT,XX>) this;
+    public <XX> Permit<TT,XX> target(Class<XX> klass) {
+        return (Permit<TT,XX>) this;
     }
     protected Class klass() {
         if (isArray) return klass.getComponentType();
@@ -209,10 +212,10 @@ public class Unflect<TT,VV> extends Safer<TT,VV> {
     public class Linked extends Safer<TT,VV> {
         int [] rows;
         protected long offset() {
-            return Unflect.this.last.addy(rows);
+            return Permit.this.last.addy(rows);
         }
         protected Object resolve(Object o) {
-            return Unflect.this.resolve(o,rows);
+            return Permit.this.resolve(o,rows);
         }
         public Linked(int ... rows) {
             this.rows = rows;
@@ -230,7 +233,7 @@ public class Unflect<TT,VV> extends Safer<TT,VV> {
             return first.resolve(o);
         if (isStatic)
             o = base;
-        for (Unflect ref=this; ref.chain != null; ref=ref.chain) {
+        for (Permit ref=this; ref.chain != null; ref=ref.chain) {
             assert(ref.isKnown | ref.klass.isInstance(o));
             o = uu.getObject(o,ref.addy(rows));
         }

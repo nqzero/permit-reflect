@@ -21,7 +21,7 @@ done
 yes "" | head
 echo "demo unflect - 9, 10, 11"
 for ii in $java9 $java10 $java11; do 
-    $ii/bin/java -cp target/classes:$cp demo.DemoUnflect
+    $ii/bin/java -cp target/classes:$cp demo.DemoPermit
 done
 
 yes "" | head
@@ -30,6 +30,6 @@ $java9/bin/java -cp target/classes:$cp demo.DemoNormal
 
 yes "" | head
 echo "demo normal with godmode"
-$java9/bin/java -cp target/classes:$cp com.nqzero.unflect.Unflect demo.DemoNormal
+$java9/bin/java -cp target/classes:$cp com.nqzero.permit.Permit demo.DemoNormal
 
 yes "" | head
