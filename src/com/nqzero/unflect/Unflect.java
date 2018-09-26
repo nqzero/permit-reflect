@@ -26,8 +26,6 @@ public class Unflect<TT,VV> extends Safer<TT,VV> {
     }
 
 
-    static boolean dbg = false;
-
     public static void godMode() {
         try {
             // this will fail on java 8 and lower
