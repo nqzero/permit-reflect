@@ -8,7 +8,6 @@ import static com.nqzero.permit.Permit.unLog;
 import static com.nqzero.permit.Permit.build;
 import java.io.FileDescriptor;
 import java.io.RandomAccessFile;
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
