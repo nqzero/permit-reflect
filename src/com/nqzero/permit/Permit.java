@@ -152,7 +152,7 @@ public class Permit<TT,VV> extends Safer<TT,VV> {
     public static void main(String[] args) throws Exception {
         int start = 0;
         boolean verbose = false;
-        if (args[0].equals("-v")) {
+        if (args.length > 0 && args[0].equals("-v")) {
             start++;
             verbose = true;
         }
