@@ -27,7 +27,7 @@ public class Permit<TT,VV> extends Safer<TT,VV> {
 
 
     static String jigsaw = "JigsawImpl";
-    public static void godMode() {
+    public static void godMode() throws RuntimeException {
         try {
             // this will fail on java 8 and lower
             // but load with at least java 9-11
@@ -36,10 +36,10 @@ public class Permit<TT,VV> extends Safer<TT,VV> {
             Method method = klass.getMethod("godMode");
             method.invoke(null);
         }
+        catch (NoSuchMethodException ex) { /* expected for java 8 or older */ }
         catch (Throwable ex) {
-            System.out.println("god: " + ex);
+            throw new RuntimeException("jigsaw appears active, but unable to open packages",ex);
         }
-            
     }
 
     
