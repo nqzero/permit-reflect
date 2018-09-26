@@ -6,7 +6,7 @@
     <dependencies>
         <dependency>
             <groupId>com.nqzero</groupId>
-            <artifactId>reflect</artifactId>
+            <artifactId>permit-reflect</artifactId>
             <version>0.1</version>
         </dependency>
     </dependencies>
