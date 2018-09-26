@@ -1,8 +1,9 @@
 # Permit Reflection
 
 utilities for working with java 9+ modules
-* `Permit.setAccessible` enables access without regard for modules
+* `Permit.setAccessible` enables access for a `Field` or `Method` without regard for modules
 * `Permit.godMode` opens all packages in all modules to all modules
+* `Permit.main` runs a specified class's main method in god mode. this should allow many java 8 programs to run with later versions of java
 * `Permit.build` is a fluent api for semi-typesafe access to unsafe
 
 
@@ -32,8 +33,14 @@ Exception in thread "main" java.lang.IllegalAccessError:
     at demo.DemoNormal.main(DemoNormal.java:27)
 ```
 
-this was access that was fine with java 8 and earlier
+this was access that was fine with java 8 and earlier. from the demo directory, run:
 
+```
+JAVA_HOME=$java11 mvn clean package exec:java -Dexec.mainClass=com.nqzero.permit.Permit \
+        -Dexec.args="demo.DemoNormal --class-path target/classes"
+```
+
+everything should work correctly and jshell should start (and it will have access to everything in the jdk)
 
 ## a word about security
 
@@ -50,7 +57,11 @@ nothing about this library makes java less secure
 
 ## details
 
-all files in this repo copyright 2018 nqzero, and are offered under the terms of the MIT License
+* all files in this repo copyright 2018 nqzero, and are offered under the terms of the MIT License
+* the build targets java 6, but must be built with at least java 9 (needs `Module.class` and etc)
+* should run on java 7, java 8, java 9, java 10, and java 11
+* features not available on a given platform, eg god mode on java 8, should degrade gracefully
+
 
 
 
