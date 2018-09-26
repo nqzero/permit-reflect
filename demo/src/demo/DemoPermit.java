@@ -27,13 +27,22 @@ public class DemoPermit {
         return obj;
     }
     
+    void safe() {}
+    
     public static void main(String[] args) throws Exception {
         int [] vals = new int[10];
         int ii = 0;
+
+        // check whether Permit initialized first, since this is what a real user might see
+        //   with the security manager, local is null but that's ok since Permit bombs out before seeing it
+        Method local = null;
+        try { local = DemoPermit.class.getDeclaredMethod("safe"); }
+        catch (Throwable ex) {}
+        setAccessible(local);
+        
         RandomAccessFile raf = new RandomAccessFile("/etc/hosts","r");
         FileDescriptor fd = raf.getFD();
         Field field = FileDescriptor.class.getDeclaredField("fd");
-        Class ka = AccessibleObject.class;
         Method export = Module.class.getDeclaredMethod("implAddOpens",String.class);
         setAccessible(export);
         Class log = Class.forName("jdk.internal.module.IllegalAccessLogger");

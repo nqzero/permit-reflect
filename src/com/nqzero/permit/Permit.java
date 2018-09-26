@@ -10,11 +10,25 @@ import java.lang.reflect.Modifier;
 public class Permit<TT,VV> extends Safer<TT,VV> {
     public static final String splitChar = "\\.";
 
-    static Permit<AccessibleObject,Boolean> override = build(AccessibleObject.class,"override");
+    static Exception savedEx;
+    static Permit<AccessibleObject,Boolean> override;
+    static {
+        try { override = build(AccessibleObject.class,"override"); }
+        catch (Exception ex) { savedEx = ex; }
+    }
 
-    
-    public static void setAccessible(AccessibleObject accessor) {
+    public static void setAccessible(AccessibleObject accessor) throws InitializationFailed {
+        if (savedEx != null)
+            throw new InitializationFailed();
         override.putBoolean(accessor,true);
+    }
+    
+    public static boolean initSucceeded(boolean rethrow) {
+        if (savedEx==null)
+            return true;
+        if (rethrow)
+            throw new RuntimeException(savedEx);
+        return false;
     }
 
     public static void unLog() {
@@ -28,6 +42,8 @@ public class Permit<TT,VV> extends Safer<TT,VV> {
 
     static String jigsaw = "JigsawImpl";
     public static void godMode() throws RuntimeException {
+        if (savedEx != null)
+            throw new InitializationFailed();
         try {
             // this will fail on java 8 and lower
             // but load with at least java 9-11
@@ -36,7 +52,7 @@ public class Permit<TT,VV> extends Safer<TT,VV> {
             Method method = klass.getMethod("godMode");
             method.invoke(null);
         }
-        catch (NoSuchMethodException ex) { /* expected for java 8 or older */ }
+        catch (NoSuchMethodError ex) { /* expected for java 8 or older */ }
         catch (Throwable ex) {
             throw new RuntimeException("jigsaw appears active, but unable to open packages",ex);
         }
@@ -70,6 +86,12 @@ public class Permit<TT,VV> extends Safer<TT,VV> {
             throw new FieldNotFound(String.join(splitChar,names),ex);
         }
         return null;
+    }
+
+    public static class InitializationFailed extends RuntimeException {
+        public InitializationFailed() {
+            super("initialization failed, perhaps you're running with a security manager",savedEx);
+        }
     }
 
     public static class FieldNotFound extends RuntimeException {
@@ -113,10 +135,10 @@ public class Permit<TT,VV> extends Safer<TT,VV> {
         return null;
     }
     
-    private static String[] processArgs(String[] args) {
-        String[] ret = new String[args.length-1];
+    private static String[] processArgs(String[] args,int start) {
+        String[] ret = new String[args.length-start];
         if (ret.length > 0) 
-            System.arraycopy(args, 1, ret, 0, ret.length);
+            System.arraycopy(args, start, ret, 0, ret.length);
         return ret;
     }
 
@@ -128,20 +150,45 @@ public class Permit<TT,VV> extends Safer<TT,VV> {
      * @throws Exception 
      */
     public static void main(String[] args) throws Exception {
-        if (args.length == 0) {
-            System.out.println("usage: java Unflect className [args ...]");
+        int start = 0;
+        boolean verbose = false;
+        if (args[0].equals("-v")) {
+            start++;
+            verbose = true;
+        }
+
+        String name = Permit.class.getName();
+        if (args.length == start) {
+            System.out.format("\nusage: java %s [-v] className [args ...]\n",name);
             System.out.println("  invoke the main method in the named class in god mode with the remaining args");
             System.out.println("  ie, run it with all packages in all modules open to all modules");
+            System.out.println("where options are:");
+            System.out.println("  -v  : verbose, rethrow exceptions when setting god mode");
+            System.out.println("  args: the remaining args are passed to the named class main method");
             System.out.println("");
             System.exit(1);
         }
-        godMode();
-        String className = args[0];
-        args = processArgs(args);
+
+        Exception problem = savedEx;
+        try {
+            if (problem==null)
+                godMode();
+        }
+        catch (Exception ex) { problem = ex; }
+        if (problem != null) {
+            System.out.println("unable to initialize godMode - cowardly exiting");
+            System.out.println("  perhaps you have a security manager running");
+            if (verbose) {
+                System.out.format("  rethrowing exception:\n\n");
+                throw problem;
+            }
+            System.exit(1);
+        }
+        String className = args[start];
+        args = processArgs(args,start+1);
         Class mainClass = Permit.class.getClassLoader().loadClass(className);
         Method mainMethod = mainClass.getMethod("main", new Class[]{String[].class});
         mainMethod.invoke(null,new Object[] {args});
-        
     }
     
 
