@@ -30,6 +30,9 @@ public class DemoNormal {
             tool.start(args);
 
         System.out.println("tool: " + obj);
+        
+        // work around bug in jshell (dangling threads - bug has been reported and accepted by openjdk)
+        System.exit(0);
     }
     
 }
