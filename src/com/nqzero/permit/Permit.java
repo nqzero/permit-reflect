@@ -1,3 +1,5 @@
+// copyright 2018 nqzero - offered under the terms of the MIT License
+
 package com.nqzero.permit;
 
 import com.nqzero.permit.Safer.Meth;
