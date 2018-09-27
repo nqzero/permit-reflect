@@ -15,39 +15,6 @@ see the `demo` and `pshell` directories for some usage examples
 
 
 
-## indications
-
-starting with java 9, most reflection is considered "illegal". eg, running `demo.DemoNormal` **without a security manager** you'll get the following warning and exception:
-
-```
-WARNING: An illegal reflective access operation has occurred
-WARNING: Illegal reflective access by demo.DemoNormal
-         (file:/.../permit-reflect/demo/target/classes/) to field java.io.FileDescriptor.fd
-WARNING: Please consider reporting this to the maintainers of demo.DemoNormal
-WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
-WARNING: All illegal access operations will be denied in a future release
-
-Exception in thread "main" java.lang.IllegalAccessError:
-    class demo.DemoNormal (in unnamed module @0xb065c63)
-    cannot access class jdk.internal.jshell.tool.JShellToolBuilder (in module jdk.jshell)
-    because module jdk.jshell does not export jdk.internal.jshell.tool to unnamed module @0xb065c63
-    at demo.DemoNormal.main(DemoNormal.java:27)
-```
-
-this was access that was fine with java 8 and earlier
-
-modules can also prevent compiling code with java 11 (or 9 or 10), eg:
-```
-src/demo/Pshell.java:12: error: package jdk.internal.jshell.tool is not visible
-        jdk.internal.jshell.tool.JShellTool tool
-                           ^
-  (package jdk.internal.jshell.tool is declared in module jdk.jshell, which does not export it)
-```
-
-a developer can work around these problems with `--add-exports` or by compiling with java 8.
-`permit-reflect` can't help with these compilation issues
-
-
 
 ## installation
 
@@ -149,5 +116,38 @@ help keep the freedom in java by exercising reflection !
 * using `javac -source 1.8 -target 1.8` bypasses the compile-time checks
 
 
+
+
+## indications
+
+starting with java 9, most reflection is considered "illegal". eg, running `demo.DemoNormal` **without a security manager** you'll get the following warning and exception:
+
+```
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by demo.DemoNormal
+         (file:/.../permit-reflect/demo/target/classes/) to field java.io.FileDescriptor.fd
+WARNING: Please consider reporting this to the maintainers of demo.DemoNormal
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+
+Exception in thread "main" java.lang.IllegalAccessError:
+    class demo.DemoNormal (in unnamed module @0xb065c63)
+    cannot access class jdk.internal.jshell.tool.JShellToolBuilder (in module jdk.jshell)
+    because module jdk.jshell does not export jdk.internal.jshell.tool to unnamed module @0xb065c63
+    at demo.DemoNormal.main(DemoNormal.java:27)
+```
+
+this was access that was fine with java 8 and earlier
+
+modules can also prevent compiling code with java 11 (or 9 or 10), eg:
+```
+src/demo/Pshell.java:12: error: package jdk.internal.jshell.tool is not visible
+        jdk.internal.jshell.tool.JShellTool tool
+                           ^
+  (package jdk.internal.jshell.tool is declared in module jdk.jshell, which does not export it)
+```
+
+a developer can work around these problems with `--add-exports` or by compiling with java 8.
+`permit-reflect` can't help with these compilation issues
 
 
