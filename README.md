@@ -36,6 +36,16 @@ Exception in thread "main" java.lang.IllegalAccessError:
 
 this was access that was fine with java 8 and earlier
 
+## installation
+
+```
+        <dependency>
+            <groupId>com.nqzero</groupId>
+            <artifactId>permit-reflect</artifactId>
+            <version>0.2</version>
+        </dependency>
+```
+
 
 ## examples
 
