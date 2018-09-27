@@ -22,7 +22,7 @@ see the `demo` and `pshell` directories for some usage examples
         <dependency>
             <groupId>com.nqzero</groupId>
             <artifactId>permit-reflect</artifactId>
-            <version>0.2</version>
+            <version>0.3</version>
         </dependency>
 ```
 
