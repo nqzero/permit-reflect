@@ -36,6 +36,19 @@ Exception in thread "main" java.lang.IllegalAccessError:
 
 this was access that was fine with java 8 and earlier
 
+modules can also prevent compiling code with java 11 (or 9 or 10), eg:
+```
+src/demo/Pshell.java:12: error: package jdk.internal.jshell.tool is not visible
+        jdk.internal.jshell.tool.JShellTool tool
+                           ^
+  (package jdk.internal.jshell.tool is declared in module jdk.jshell, which does not export it)
+```
+
+a developer can work around these problems with `--add-exports` or by compiling with java 8.
+`permit-reflect` can't help with these compilation issues
+
+
+
 ## installation
 
 ```
