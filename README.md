@@ -1,6 +1,6 @@
 # Permit Reflection
 
-utilities for working with java 11 modules
+utilities for working with java 11 (and 12) modules
 * `Permit.setAccessible` enables access for a `Field` or `Method` without regard for modules
 * `Permit.godMode` opens all packages in all modules to all modules
 * `Permit.main` runs a specified class's main method in god mode.
@@ -111,7 +111,7 @@ help keep the freedom in java by exercising reflection !
 
 * all files in this repo copyright 2018 nqzero, and are offered under the terms of the MIT License
 * the build targets java 6, but must be built with at least java 9 (needs `Module.class` and etc)
-* should run on java 7, java 8, java 9, java 10, java 11, and (at least early builds of) java 12
+* should run on java 7, java 8, java 9, java 10, java 11, and java 12
 * features not available on a given platform, eg god mode on java 8, should degrade gracefully
 * using `javac -source 1.8 -target 1.8` bypasses the compile-time checks
 
