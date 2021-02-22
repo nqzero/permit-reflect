@@ -1,4 +1,4 @@
-// copyright 2018 nqzero - offered under the terms of the MIT License
+// copyright 2021 nqzero - offered under the terms of the MIT License
 
 package com.nqzero.permit;
 
@@ -13,36 +13,13 @@ public class Permit<TT,VV> extends Safer<TT,VV> {
     public static final String splitChar = "\\.";
 
     static Exception savedEx;
-    static Permit<AccessibleObject,Boolean> override;
-    static {
-        getOverride();
-    }
 
-    static void getOverride() {
-        Permit fake = null;
-        Exception saved = null;
-        try { override = build(AccessibleObject.class,"override"); }
-        catch (Exception ex) { saved = ex; }
-        if (saved != null)
-            try {
-                fake = build(Fake.class,"override");
-                fake.klass = AccessibleObject.class;
-                override = fake;
-                return;
-            }
-            catch (Exception ex) {}
-        savedEx = saved;
-    }
-    
     public static void setAccessible(AccessibleObject accessor) throws InitializationFailed {
         if (savedEx != null)
             throw new InitializationFailed();
-        override.putBoolean(accessor,true);
+        accessor.setAccessible(true);
     }
-    static class Fake {
-        boolean override;
-    }
-    
+
     public static boolean initSucceeded(boolean rethrow) {
         if (savedEx==null)
             return true;

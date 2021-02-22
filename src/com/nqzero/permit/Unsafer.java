@@ -1,19 +1,21 @@
-// copyright 2018 nqzero - offered under the terms of the MIT License
+// copyright 2021 nqzero - offered under the terms of the MIT License
 
 package com.nqzero.permit;
 
 import java.lang.reflect.Field;
+import sun.misc.Unsafe;
 
 public class Unsafer {
-    private static Object getField(Class klass,String name) {
+
+    public static final Unsafe uu;
+
+    static {
         try {
-            Field f = klass.getDeclaredField(name);
-            f.setAccessible(true);
-            return f.get(null);
+            Field field = Unsafe.class.getDeclaredField("theUnsafe");
+            field.setAccessible(true);
+            uu = (Unsafe) field.get(null);
+        } catch (IllegalAccessException | NoSuchFieldException e) {
+            throw new ExceptionInInitializerError(e);
         }
-        catch (Exception e) { return null; }
     }
-    public static final sun.misc.Unsafe uu =
-            (sun.misc.Unsafe) getField(sun.misc.Unsafe.class,"theUnsafe");
-    
 }
